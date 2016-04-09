@@ -1,0 +1,30 @@
+{
+    "appKeys": {
+        "KEY_NAME": 0,
+        "KEY_DISTANCE": 1,
+        "KEY_ANGLE": 2,
+        "KEY_FREE_BIKE": 3
+    },
+    "capabilities": [
+        ""
+    ],
+    "companyName": "thomacer",
+    "enableMultiJS": true,
+    "longName": "Villo !",
+    "projectType": "native",
+    "resources": {
+        "media": [ ]
+    },
+    "sdkVersion": "3",
+    "shortName": "Villo !",
+    "targetPlatforms": [
+        "aplite",
+        "basalt",
+        "chalk"
+    ],
+    "uuid": "a2d33e61-7bd5-4222-8187-5de924c2ff62",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
