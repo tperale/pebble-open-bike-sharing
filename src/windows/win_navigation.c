@@ -22,9 +22,17 @@ static Layer* s_direction_layer;
 /*                        GTextAlignmentLeft, NULL); */
 /* } */
 
+static void compass_heading_handler(CompassHeadingData heading_data) {
+  LOG("COMPASS redraw : %ld and angle %ld", heading_data.magnetic_heading, t_angle->value->int32);
+
+  // rotate needle accordingly
+  gpath_rotate_to(s_arrow, heading_data.magnetic_heading + (TRIG_MAX_ANGLE * (t_angle->value->int32 / 360)));
+
+  // trigger layer for refresh
+  layer_mark_dirty(s_direction_layer);
+}
+
 static void direction_update_proc(Layer *layer, GContext *ctx) {
-    LOG("Angle : %ld", t_angle->value->int32);
-    gpath_rotate_to(s_arrow, t_angle->value->int32);
     gpath_draw_filled(ctx, s_arrow);
     gpath_draw_outline(ctx, s_arrow);
 }
@@ -46,6 +54,16 @@ static void window_load(Window *window) {
     layer_add_child(window_layer, s_direction_layer);
 }
 
+
+static void window_appear(Window *window) {
+  compass_service_set_heading_filter(DEG_TO_TRIGANGLE(2));
+  compass_service_subscribe(&compass_heading_handler);
+}
+
+static void window_disappear(Window *window) {
+  compass_service_unsubscribe();
+}
+
 static void window_unload(Window *window) {
 }
 
@@ -58,6 +76,7 @@ void win_navigation_update () {
         return;
     }
 
+
     /* layer_mark_dirty(s_direction_layer); */
     /* layer_mark_dirty(s_text_layer); */
 }
@@ -68,7 +87,8 @@ void win_navigation_init (void) {
   window = window_create();
   window_set_window_handlers(window, (WindowHandlers) {
     .load = window_load,
-    .appear = win_navigation_update,
+    .appear = window_appear,
+    .disappear = window_disappear,
     .unload = window_unload,
   });
   window_stack_push(window, true);
