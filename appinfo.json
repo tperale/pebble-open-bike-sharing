@@ -3,7 +3,11 @@
         "KEY_NAME": 0,
         "KEY_DISTANCE": 1,
         "KEY_ANGLE": 2,
-        "KEY_FREE_BIKE": 3
+        "KEY_FREE_BIKE": 3,
+        "KEY_PARKINGS": 4,
+
+        "GET_LOCATION" : 100,
+        "GET_STATIONS" : 101
     },
     "capabilities": [
         ""

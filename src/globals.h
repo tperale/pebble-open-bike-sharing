@@ -7,6 +7,9 @@
 #define KEY_ANGLE 2
 #define KEY_FREE_BIKE 3
 
+#define GET_LOCATION 100
+#define GET_STATIONS 101
+
 #define BUFFER_SIZE 32
 
 extern Tuple* t_name;
