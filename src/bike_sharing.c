@@ -12,7 +12,7 @@ static void send_request (int value) {
 
     if (result == APP_MSG_OK) {
         // Add an item to ask for weather data
-        dict_write_int(out_iter, 0, &value, sizeof(int), false);
+        dict_write_int(out_iter, KEY_COMMUNICATION, &value, sizeof(int), false);
 
         // Send this message
         result = app_message_outbox_send();
@@ -52,6 +52,10 @@ static void second_handler (struct tm *tick_time, TimeUnits units_changed) {
     send_request(GET_LOCATION);
 }
 
+static void minute_handler (struct tm *tick_time, TimeUnits units_changed) {
+    send_request(GET_STATIONS);
+}
+
 int main(void) {
   win_main_init();
 
@@ -65,7 +69,7 @@ int main(void) {
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 
   tick_timer_service_subscribe(SECOND_UNIT, second_handler);
-  /* tick_timer_service_subscribe(MINUTE_UNIT, second_handler); */
+  /* tick_timer_service_subscribe(MINUTE_UNIT, minute_handler); */
 
   app_event_loop();
   win_main_deinit();

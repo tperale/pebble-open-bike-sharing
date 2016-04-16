@@ -1,4 +1,7 @@
-var url = "http://api.citybik.es/v2/networks/villo";
+var options = JSON.parse(localStorage.getItem('options'));
+if (!options || !options.api_address) {
+    options = { api_address : "http://api.citybik.es/v2/networks/villo" };
+}
 
 var min_distance = 100000;
 
@@ -103,9 +106,9 @@ var get_close_stations = function (pos) {
     var my_lat = pos.coords.latitude;
     var my_long = pos.coords.longitude;
 
-    console.log("Requesting " + url);
+    console.log("Requesting " + options.api_address);
 
-    xhrRequest(url, 'GET', 
+    xhrRequest(options.api_address, 'GET', 
         function(responseText) {
             var json = JSON.parse(responseText);
             var stations = json['network']['stations'];
@@ -201,6 +204,7 @@ var get_location = function () {
 Pebble.addEventListener('ready', 
     function(e) {
         console.log('PebbleKit JS ready!');
+
         get_villo_station();
     }
 );
@@ -208,6 +212,33 @@ Pebble.addEventListener('ready',
 Pebble.addEventListener('appmessage',
     function(e) {
         console.log('AppMessage received!');
-        get_villo_station();
+
+        console.log('RECEIVED : ' + JSON.stringify(e));
+
+        switch (e.payload.KEY_COMMUNICATION) {
+            case 100: // location.
+                get_location();
+                break;
+            case 101:
+                get_villo_station();
+                break;
+        }
     }                     
 );
+
+Pebble.addEventListener('showConfiguration', function() {
+  var url = 'https://rawgit.com/thomacer/pebble-villo/master/config/index.html';
+
+  Pebble.openURL(url);
+});
+
+Pebble.addEventListener('webviewclosed', function(e) {
+  // Decode the user's preferences
+  if (e.response) {
+    options = JSON.parse(decodeURIComponent(e.response));
+    console.log("Received : " + JSON.stringify(options));
+    localStorage.setItem('options', JSON.stringify(options)); 
+
+    get_villo_station();
+  }
+});

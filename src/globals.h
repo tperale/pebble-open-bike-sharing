@@ -7,6 +7,8 @@
 #define KEY_ANGLE 2
 #define KEY_FREE_BIKE 3
 
+#define KEY_COMMUNICATION 99
+
 #define GET_LOCATION 100
 #define GET_STATIONS 101
 

@@ -6,21 +6,23 @@
         "KEY_FREE_BIKE": 3,
         "KEY_PARKINGS": 4,
 
+        "KEY_COMMUNICATION" : 99,
         "GET_LOCATION" : 100,
-        "GET_STATIONS" : 101
+        "GET_STATIONS" : 101,
+        "api_address" : 200
     },
     "capabilities": [
-        ""
+        "configurable"
     ],
     "companyName": "thomacer",
     "enableMultiJS": true,
-    "longName": "Villo !",
+    "longName": "Bike Sharing application.",
     "projectType": "native",
     "resources": {
         "media": [ ]
     },
     "sdkVersion": "3",
-    "shortName": "Villo !",
+    "shortName": "Bike Sharing",
     "targetPlatforms": [
         "aplite",
         "basalt",
