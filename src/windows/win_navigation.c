@@ -23,10 +23,10 @@ static Layer* s_direction_layer;
 /* } */
 
 static void compass_heading_handler(CompassHeadingData heading_data) {
-  LOG("COMPASS redraw : %ld and angle %ld", heading_data.magnetic_heading, t_angle->value->int32);
-
   // rotate needle accordingly
-  gpath_rotate_to(s_arrow, heading_data.magnetic_heading + (TRIG_MAX_ANGLE * (t_angle->value->int32 / 360)));
+  double tmp = ((double) TRIG_MAX_ANGLE) * ((double) t_angle->value->int32 / 360);
+  LOG("COMPASS redraw : %ld and angle %ld (%lf)", heading_data.magnetic_heading, t_angle->value->int32, tmp);
+  gpath_rotate_to(s_arrow, (heading_data.magnetic_heading + (int) tmp));
 
   // trigger layer for refresh
   layer_mark_dirty(s_direction_layer);
