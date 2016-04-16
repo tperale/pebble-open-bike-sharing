@@ -8,6 +8,8 @@ static GPath* s_arrow;
 static GPoint center;
 
 static Layer* s_direction_layer;
+static TextLayer* s_text_layer_info;
+static char text_layer_buffer[32];
 
 /* static Layer* s_text_layer; */
 
@@ -52,19 +54,29 @@ static void window_load(Window *window) {
     s_direction_layer = layer_create(bounds);
     layer_set_update_proc(s_direction_layer, direction_update_proc);
     layer_add_child(window_layer, s_direction_layer);
+
+
+    s_text_layer_info = text_layer_create(GRect(0, 0, bounds.size.w, bounds.size.h / 7));
+    text_layer_set_text_alignment(s_text_layer_info, GTextAlignmentLeft);
+    text_layer_set_background_color(s_text_layer_info, GColorClear);
+
+    layer_add_child(window_layer, text_layer_get_layer(s_text_layer_info));
+
 }
 
 
 static void window_appear(Window *window) {
-  compass_service_set_heading_filter(DEG_TO_TRIGANGLE(2));
-  compass_service_subscribe(&compass_heading_handler);
+    compass_service_set_heading_filter(DEG_TO_TRIGANGLE(2));
+    compass_service_subscribe(&compass_heading_handler);
 }
 
 static void window_disappear(Window *window) {
-  compass_service_unsubscribe();
+    compass_service_unsubscribe();
 }
 
 static void window_unload(Window *window) {
+    gpath_destroy(s_arrow);
+    layer_destroy(s_direction_layer);
 }
 
 void win_navigation_show () {
@@ -76,9 +88,10 @@ void win_navigation_update () {
         return;
     }
 
-
-    /* layer_mark_dirty(s_direction_layer); */
-    /* layer_mark_dirty(s_text_layer); */
+    if (t_free_bike) {
+        snprintf(text_layer_buffer, 32, "%ld free bikes.", t_free_bike->value->int32);
+        text_layer_set_text(s_text_layer_info, text_layer_buffer);
+    }
 }
 
 void win_navigation_init (void) {
