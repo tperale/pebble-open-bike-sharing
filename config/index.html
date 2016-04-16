@@ -53,11 +53,11 @@
     var apiAddress = document.getElementById('api_address');
 
     var options = {
-      'CONFIGURATION_URL': apiAddress.value,
+      'api_address': apiAddress.value,
     };
 
     // Save for next launch
-    localStorage['CONFIGURATION_URL'] = options['CONFIGURATION_URL'];
+    localStorage['api_address'] = options['api_address'];
 
     //console.log('Got options: ' + JSON.stringify(options));
     return options;
@@ -85,11 +85,11 @@
   });
 
   (function() {
-    var apiAddress = document.getElementById('CONFIGURATION_URL');
+    var apiAddress = document.getElementById('api_address');
 
     // Load any previously saved configuration, if available
-    if(localStorage['CONFIGURATION_URL']) {
-      apiAddress.value = localStorage['CONFIGURATION_URL'];
+    if(localStorage['api_address']) {
+      apiAddress.value = localStorage['api_address'];
     }
   })();
   </script>
