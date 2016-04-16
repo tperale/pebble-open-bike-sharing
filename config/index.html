@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Bike Sharing configuration for Pebble</title>
+  <link rel='stylesheet' type='text/css' href='css/slate.min.css'>
+  <script src='js/slate.min.js'></script>
+  <style>
+  .title {
+    padding: 15px 10px;
+    text-transform: uppercase;
+    font-family: 'PT Sans', sans-serif;
+    font-size: 1.2em;
+    font-weight: 500;
+    color: #888888;
+    text-align: center;
+  }
+  </style>
+  </head>
+
+  <body>
+    <h1 class='title'>Bike Sharing</h1>
+
+    <div class='item-container'>
+      <div class='item-container-content'>
+        <div class='item'>
+          Enter the api address for your bike sharing service.
+        </div>
+      </div>
+    </div>
+
+    <div class='item-container'>
+      <div class='item-container-header'>API address.</div>
+      <div class='item-container-content'>
+        <label class="item">
+          <div class="item-input-wrapper">
+            <input type="text" class="item-input" name="api_address" id='api_address' placeholder="API address">
+          </div>
+        </label>
+      </div>
+      <div class='item-container-footer'>
+        Go to "http://api.citybik.es/v2/networks/" to find your API address.
+      </div>
+    </div>
+
+    <div class='item-container'>
+      <div class='button-container'>
+        <input id='submit_button' type='button' class='item-button' value='SUBMIT'>
+      </div>
+    </div>
+  </body>
+  <script>
+  function getConfigData() {
+    var apiAddress = document.getElementById('api_address');
+
+    var options = {
+      'CONFIGURATION_URL': apiAddress.value,
+    };
+
+    // Save for next launch
+    localStorage['CONFIGURATION_URL'] = options['CONFIGURATION_URL'];
+
+    //console.log('Got options: ' + JSON.stringify(options));
+    return options;
+  }
+
+  function getQueryParam(variable, defaultValue) {
+    var query = location.search.substring(1);
+    var vars = query.split('&');
+    for (var i = 0; i < vars.length; i++) {
+      var pair = vars[i].split('=');
+      if (pair[0] === variable) {
+        return decodeURIComponent(pair[1]);
+      }
+    }
+    return defaultValue || false;
+  }
+
+  var submitButton = document.getElementById('submit_button');
+  submitButton.addEventListener('click', function() {
+    console.log('Submit');
+
+    // Set the return URL depending on the runtime environment
+    var return_to = getQueryParam('return_to', 'pebblejs://close#');
+    document.location = return_to + encodeURIComponent(JSON.stringify(getConfigData()));
+  });
+
+  (function() {
+    var apiAddress = document.getElementById('CONFIGURATION_URL');
+
+    // Load any previously saved configuration, if available
+    if(localStorage['CONFIGURATION_URL']) {
+      apiAddress.value = localStorage['CONFIGURATION_URL'];
+    }
+  })();
+  </script>
+</html>
