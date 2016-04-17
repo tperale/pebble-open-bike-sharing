@@ -34,8 +34,7 @@
                 "file": "images/parking.png",
                 "name": "PARKING_BITMAP",
                 "targetPlatforms": [
-                    "aplite",
-                    "basalt"
+                    "aplite"
                 ],
                 "type": "bitmap"
             }
