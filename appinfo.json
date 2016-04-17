@@ -1,18 +1,18 @@
 {
     "appKeys": {
-        "KEY_NAME": 0,
-        "KEY_DISTANCE": 1,
+        "GET_LOCATION": 100,
+        "GET_STATIONS": 101,
         "KEY_ANGLE": 2,
+        "KEY_COMMUNICATION": 99,
+        "KEY_DISTANCE": 1,
         "KEY_FREE_BIKE": 3,
+        "KEY_NAME": 0,
+        "KEY_NUMBER_OF_STATIONS": 5,
         "KEY_PARKINGS": 4,
-        "KEY_NUMBER_OF_STATIONS" : 5,
-
-        "KEY_COMMUNICATION" : 99,
-        "GET_LOCATION" : 100,
-        "GET_STATIONS" : 101,
-        "api_address" : 200
+        "api_address": 200
     },
     "capabilities": [
+        "location",
         "configurable"
     ],
     "companyName": "thomacer",
@@ -22,14 +22,17 @@
     "resources": {
         "media": [
             {
-              "type": "bitmap",
-              "name": "BICYCLE_BITMAP",
-              "file": "images/urlab.png"
+                "file": "images/bicycle.png",
+                "name": "BICYCLE_BITMAP",
+                "targetPlatforms": [
+                    "aplite"
+                ],
+                "type": "bitmap"
             },
             {
-              "type": "bitmap",
-              "name": "PARKING_BITMAP",
-              "file": "images/parking.png"
+                "file": "images/parking.png",
+                "name": "PARKING_BITMAP",
+                "type": "bitmap"
             }
         ]
     },
