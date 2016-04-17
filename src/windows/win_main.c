@@ -6,11 +6,6 @@ static Window* window;
 
 static MenuLayer* s_menu_layer;
 
-/* This variable will be set when we get the JSON from SpaceAPI, it keep
- * track of the number of items in the second section.
- */
-/* static uint16_t space_info_current_number = 0; */
-
 #define MAX_NUMBER_OF_STATIONS 1
 
 static char station_name_buffer[32];
@@ -89,15 +84,16 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
 /* @desc Assign functions callback to items.
  */
 static void menu_select_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data) {
-    /* (*space_info_callback[cell_index->row]) (); */
-    win_navigation_show();
+    if (station_number) {
+        win_navigation_show();
+    }
 }
 
 static void window_load(Window *window) {
-  snprintf(station_name_buffer, 32, "NOPE");
+  snprintf(station_name_buffer, 32, "Loading...");
   space_info_title[0] = station_name_buffer;
 
-  snprintf(station_number_buffer, 32, "NOPE");
+  snprintf(station_number_buffer, 32, "Loading...");
   space_info_subtitle[0] = station_number_buffer;
 
   Layer *window_layer = window_get_root_layer(window);
@@ -137,23 +133,21 @@ void win_main_init (void) {
 }
 
 void win_main_update (void) {
-    if (window_stack_get_top_window() != window) {
-        win_navigation_update();
-        return;
-    }
+  if (window_stack_get_top_window() != window) {
+      win_navigation_update();
+      return;
+  }
 
-    snprintf(station_name_buffer, 32, "%s", t_name->value->cstring);
-    space_info_title[0] = station_name_buffer;
+  snprintf(station_name_buffer, 32, "%s", t_name->value->cstring);
+  space_info_title[0] = station_name_buffer;
 
-    snprintf(station_number_buffer, 32, "%s", t_distance->value->cstring);
-    space_info_subtitle[0] = station_number_buffer;
+  snprintf(station_number_buffer, 32, "%s", t_distance->value->cstring);
+  space_info_subtitle[0] = station_number_buffer;
 
-    layer_mark_dirty(menu_layer_get_layer(s_menu_layer));
-    menu_layer_reload_data(s_menu_layer);
+  layer_mark_dirty(menu_layer_get_layer(s_menu_layer));
+  menu_layer_reload_data(s_menu_layer);
 }
 
 void win_main_deinit (void) {
   window_destroy(window);
 }
-
-

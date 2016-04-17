@@ -25,7 +25,6 @@ static void send_request (int value) {
     }
 }
 
-
 static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
   APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
 }
@@ -43,7 +42,9 @@ static void inbox_connected_person_callback(DictionaryIterator *iterator, void *
   t_name = dict_find(iterator, KEY_NAME);
   t_distance = dict_find(iterator, KEY_DISTANCE);
   t_angle = dict_find(iterator, KEY_ANGLE);
-  t_free_bike = dict_find(iterator, KEY_FREE_BIKE);
+  t_free_bikes = dict_find(iterator, KEY_FREE_BIKE)->value->int32;
+  t_parkings = dict_find(iterator, KEY_PARKINGS)->value->int32;
+  station_number = dict_find(iterator, KEY_NUMBER_OF_STATIONS)->value->int32;
 
   win_main_update ();
 }

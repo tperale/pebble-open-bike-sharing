@@ -5,6 +5,7 @@
         "KEY_ANGLE": 2,
         "KEY_FREE_BIKE": 3,
         "KEY_PARKINGS": 4,
+        "KEY_NUMBER_OF_STATIONS" : 5,
 
         "KEY_COMMUNICATION" : 99,
         "GET_LOCATION" : 100,
@@ -16,13 +17,24 @@
     ],
     "companyName": "thomacer",
     "enableMultiJS": true,
-    "longName": "Bike Sharing application.",
+    "longName": "Open Bike Sharing application.",
     "projectType": "native",
     "resources": {
-        "media": [ ]
+        "media": [
+            {
+              "type": "bitmap",
+              "name": "BICYCLE_BITMAP",
+              "file": "images/urlab.png"
+            },
+            {
+              "type": "bitmap",
+              "name": "PARKING_BITMAP",
+              "file": "images/parking.png"
+            }
+        ]
     },
     "sdkVersion": "3",
-    "shortName": "Bike Sharing",
+    "shortName": "Open Bike Sharing",
     "targetPlatforms": [
         "aplite",
         "basalt",

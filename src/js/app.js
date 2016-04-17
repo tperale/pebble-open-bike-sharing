@@ -69,7 +69,8 @@ var make_response = function (pos) {
         KEY_DISTANCE : null,
         KEY_ANGLE : null,
         KEY_FREE_BIKE : null,
-        KEY_PARKINGS : null
+        KEY_PARKINGS : null,
+        KEY_NUMBER_OF_STATIONS : 1
     };
 
     ret.KEY_NAME = current[0].name;
@@ -150,7 +151,7 @@ var get_close_stations = function (pos) {
                     console.log('API info sent to Pebble successfully!');
                 },
                 function(e) {
-                    console.log('Error sending API info to Pebble!');
+                    console.log('Error sending API info to Pebble : ' + JSON.stringify(e));
                 }
             );
         }
@@ -161,7 +162,7 @@ var location_error = function (err) {
     console.log('Error requesting location!');
 }
 
-var get_villo_station = function () {
+var get_stations = function () {
     navigator.geolocation.getCurrentPosition(
         get_close_stations,
         location_error,
@@ -205,7 +206,7 @@ Pebble.addEventListener('ready',
     function(e) {
         console.log('PebbleKit JS ready!');
 
-        get_villo_station();
+        get_stations();
     }
 );
 
@@ -220,7 +221,7 @@ Pebble.addEventListener('appmessage',
                 get_location();
                 break;
             case 101:
-                get_villo_station();
+                get_stations();
                 break;
         }
     }                     
@@ -239,6 +240,6 @@ Pebble.addEventListener('webviewclosed', function(e) {
     console.log("Received : " + JSON.stringify(options));
     localStorage.setItem('options', JSON.stringify(options)); 
 
-    get_villo_station();
+    get_stations();
   }
 });
