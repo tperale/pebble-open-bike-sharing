@@ -1,6 +1,6 @@
 var options = JSON.parse(localStorage.getItem('options'));
 if (!options || !options.api_address) {
-    options = { api_address : "http://api.citybik.es/v2/networks/villo" };
+    options = { api_address : 'http://api.citybik.es/v2/networks/villo' };
 }
 
 var min_distance = 100000;
@@ -18,7 +18,7 @@ var to_degree = function (radians) {
 /* @desc : Calculate a distance beetween two (latitude, longitude) couple.
  */
 var calc_distance = function (lat1, lon1, lat2, lon2) {
-    var unit = "K";
+    var unit = 'K';
     
     var radlat1 = Math.PI * lat1 / 180;
     var radlat2 = Math.PI * lat2 / 180;
@@ -33,18 +33,18 @@ var calc_distance = function (lat1, lon1, lat2, lon2) {
     dist = dist * 180 / Math.PI;
     dist = dist * 60 * 1.1515;
 
-    if (unit=="K") { dist = dist * 1.609344; }
-    if (unit=="N") { dist = dist * 0.8684; }
+    if (unit=='K') { dist = dist * 1.609344; }
+    if (unit=='N') { dist = dist * 0.8684; }
 
     return dist;
 };
 
 var format_distance = function (distance) {
-    var result = "";
+    var result = '';
     if (distance < 1) {
-        result = (distance * 1000).toString().slice(0, 6) + " M";
+        result = (distance * 1000).toString().slice(0, 6) + ' M';
     } else {
-        result = distance.toString().slice(0, 6) + " KM";
+        result = distance.toString().slice(0, 6) + ' KM';
     }
 
     return result;
@@ -76,7 +76,7 @@ var make_response = function (pos) {
     ret.KEY_NAME = current[0].name;
 
     ret.KEY_DISTANCE = format_distance(calc_distance(current[0].latitude, current[0].longitude, pos.coords.latitude, pos.coords.longitude));
-    console.log("DISTANCE : " + format_distance(calc_distance(current[0].latitude, current[0].longitude, pos.coords.latitude, pos.coords.longitude)));
+    console.log('DISTANCE : ' + format_distance(calc_distance(current[0].latitude, current[0].longitude, pos.coords.latitude, pos.coords.longitude)));
 
     var delta_lat = pos.coords.latitude - current[0].latitude;
     var delta_long = pos.coords.longitude - current[0].longitude;
@@ -107,7 +107,7 @@ var get_close_stations = function (pos) {
     var my_lat = pos.coords.latitude;
     var my_long = pos.coords.longitude;
 
-    console.log("Requesting " + options.api_address);
+    console.log('Requesting ' + options.api_address);
 
     xhrRequest(options.api_address, 'GET', 
         function(responseText) {
@@ -120,7 +120,7 @@ var get_close_stations = function (pos) {
             for (var i = 0; i < stations.length; ++i) {
                 var station = stations[i];
 
-                if (station['free_bikes'] == 0) {
+                if (station['free_bikes'] === 0) {
                     continue;
                 }
 
@@ -156,11 +156,11 @@ var get_close_stations = function (pos) {
             );
         }
     );
-}
+};
     
 var location_error = function (err) {
     console.log('Error requesting location!');
-}
+};
 
 var get_stations = function () {
     navigator.geolocation.getCurrentPosition(
@@ -237,7 +237,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
   // Decode the user's preferences
   if (e.response) {
     options = JSON.parse(decodeURIComponent(e.response));
-    console.log("Received : " + JSON.stringify(options));
+    console.log('Received : ' + JSON.stringify(options));
     localStorage.setItem('options', JSON.stringify(options)); 
 
     get_stations();
