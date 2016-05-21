@@ -3,5 +3,4 @@ all:
 	pebble build
 
 aplite:
-	pebble install --emulator aplite
-	pebble logs --emulator aplite
+	pebble install --emulator aplite --logs

@@ -50,11 +50,8 @@ static void inbox_connected_person_callback(DictionaryIterator *iterator, void *
 }
 
 static void second_handler (struct tm *tick_time, TimeUnits units_changed) {
-    send_request(GET_LOCATION);
-}
-
-static void minute_handler (struct tm *tick_time, TimeUnits units_changed) {
-    send_request(GET_STATIONS);
+    // send_request(GET_LOCATION);
+    // send_request(GET_STATIONS);
 }
 
 int main(void) {
@@ -67,10 +64,10 @@ int main(void) {
   app_message_register_outbox_failed(outbox_failed_callback);
   app_message_register_outbox_sent(outbox_sent_callback);
 
-  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  // app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  app_message_open(1024, 1024);
 
   tick_timer_service_subscribe(SECOND_UNIT, second_handler);
-  /* tick_timer_service_subscribe(MINUTE_UNIT, minute_handler); */
 
   app_event_loop();
   win_main_deinit();
