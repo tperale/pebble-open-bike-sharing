@@ -43,45 +43,34 @@ Stations.prototype.add = function (station) {
     }
 };
 
+Stations.prototype._send = function (index) {
+    if (index < Math.min(this.stations.length, 5)) {
+        var result = this.stations[index].getPlain();
+        // result.KEY_DISTANCE = format_distance(result.KEY_DISTANCE); // TODO CHANGE THIS SHIT
+        result.KEY_DISTANCE = result.KEY_DISTANCE;
+        result.KEY_INDEX = index;
+        result.KEY_NUMBER_OF_STATIONS = Math.min(this.stations.length, 5);
+        console.log('Sending : ' + JSON.stringify(result));
+        var s = this;
+        Pebble.sendAppMessage(result,
+            function(e) {
+                console.log('Station info sent to Pebble successfully in index ' + index);
+                s._send(index + 1);
+            },
+            function(e) {
+                console.log('Error sending API info to Pebble in index ' + index);
+            }
+        );
+    } else {
+        return; 
+    }
+
+};
+
 Stations.prototype.send = function () {
     console.log('Sending results');
-    var stations_number = this.stations.length;
-    // async.forEachOf(this.stations, function (item, index, callback) {
-    //     var result = item.getPlain();
-    //     console.log('Sending : ' + JSON.stringify(item));
-    //     result.KEY_DISTANCE = format_distance(result.KEY_DISTANCE); // TODO CHANGE THIS SHIT
-    //     result.KEY_INDEX = index;
-    //     result.KEY_NUMBER_OF_STATIONS = stations_number;
-    //     Pebble.sendAppMessage(result,
-    //         function(e) {
-    //             console.log('Station info sent to Pebble successfully');
-    //             callback();
-    //         },
-    //         function(e) {
-    //             console.log('Error sending API info to Pebble');
-    //             callback(e);
-    //         }
-    //     );
-    // }, function (err, results) {
-    //     if (err) {
-    //         console.error('Error sending the information to the pebble : ' + JSON.stringify(err));
-    //     }
-    // });
-    var result = this.stations[0].getPlain();
-    console.log('Sending : ' + JSON.stringify(result));
-    // result.KEY_DISTANCE = format_distance(result.KEY_DISTANCE); // TODO CHANGE THIS SHIT
-    result.KEY_DISTANCE = result.KEY_DISTANCE;
-    result.KEY_INDEX = 0;
-    result.KEY_NUMBER_OF_STATIONS = this.stations.length;
-    Pebble.sendAppMessage(result,
-        function(e) {
-            console.log('Station info sent to Pebble successfully');
-        },
-        function(e) {
-            console.log('Error sending API info to Pebble');
-        }
-    );
 
+    this._send(0);
 };
 
 exports.Stations = Stations;
