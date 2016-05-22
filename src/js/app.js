@@ -7,22 +7,22 @@ if (!options || !options.api_address) {
     options = { api_address : 'http://api.citybik.es/v2/networks/villo' };
 }
 
-var xhrRequest = function (url, type, callback) {
+var xhrRequest = (url, type, callback) => {
   var xhr = new XMLHttpRequest();
-  xhr.onload = function () {
-      callback(this.responseText);
-    };
+  xhr.onload = () => {
+      callback(xhr.responseText);
+  };
   xhr.open(type, url);
   xhr.send();
 };
 
-var get_stations = function () {
+var get_stations = () => {
     navigator.geolocation.getCurrentPosition(
         function (pos) {
             console.log('Requesting ' + options.api_address);
 
             xhrRequest(options.api_address, 'GET', 
-                function(responseText) {
+                (responseText) => {
                     var json = JSON.parse(responseText);
 
                     var stations = new Stations(pos.coords.latitude,
@@ -36,19 +36,19 @@ var get_stations = function () {
                     });
                 });
         },
-        function (err) {
+        (err) => {
             console.log('Error requesting location : ' + err);
         },
         {timeout: 15000, maximumAge: 60000}
     );
 };
 
-var get_location = function () {
+var get_location = () => {
     navigator.geolocation.getCurrentPosition(
-        function (pos) {
+        (pos) => {
             return; 
         },
-        function (err) {
+        (err) => {
             console.log('Error requesting location : ' + err);
         },
         {timeout: 15000, maximumAge: 60000}
@@ -56,7 +56,7 @@ var get_location = function () {
 };
 
 Pebble.addEventListener('ready', 
-    function(e) {
+    (e) => {
         console.log('PebbleKit JS ready!');
 
         get_stations();
@@ -64,7 +64,7 @@ Pebble.addEventListener('ready',
 );
 
 Pebble.addEventListener('appmessage',
-    function(e) {
+    (e) => {
         console.log('AppMessage received!');
 
         console.log('RECEIVED : ' + JSON.stringify(e));
@@ -80,19 +80,19 @@ Pebble.addEventListener('appmessage',
     }                     
 );
 
-Pebble.addEventListener('showConfiguration', function() {
+Pebble.addEventListener('showConfiguration', () => {
   var url = 'https://rawgit.com/thomacer/pebble-villo/master/config/index.html';
 
   Pebble.openURL(url);
 });
 
-Pebble.addEventListener('webviewclosed', function(e) {
-  // Decode the user's preferences
-  if (e.response) {
-    options = JSON.parse(decodeURIComponent(e.response));
-    console.log('Received : ' + JSON.stringify(options));
-    localStorage.setItem('options', JSON.stringify(options)); 
+Pebble.addEventListener('webviewclosed', (e) => {
+    // Decode the user's preferences
+    if (e.response) {
+        options = JSON.parse(decodeURIComponent(e.response));
+        console.log('Received : ' + JSON.stringify(options));
+        localStorage.setItem('options', JSON.stringify(options)); 
 
-    get_stations();
-  }
+        get_stations();
+    }
 });

@@ -52,5 +52,7 @@
     "eqnull" : false,
 
     // Supress dot notation warnings (e.g. allow obj['prop'])
-    "sub" : true
+    "sub" : true,
+
+    "esversion" : 6
 }

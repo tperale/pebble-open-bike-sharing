@@ -16,17 +16,6 @@ module.exports = function(grunt) {
             }
         },
 
-        browserify: {
-            build: {
-                src: [
-                    'src/js/**/*.js',
-                    '!src/js/**/*.tpl.js',
-                    '!src/js/pebble-js-app.js',
-                ],
-                dest: 'src/js/pebble-js-app.js',
-            },
-        },
-
         config: appConfig, 
 
         copy: {
@@ -40,6 +29,23 @@ module.exports = function(grunt) {
                     'src/appinfo.h': ['src/appinfo.tpl.h'],
                     'src/js/appinfo.js': ['src/js/appinfo.tpl.js'],
                 }
+            },
+        },
+
+        browserify: {
+            dist: {
+                options: {
+                    transform: [
+                        ['babelify', {
+                            presets: ['es2015'],
+                        }]
+                    ]
+                },
+                src: ['src/js/**/*.js',
+                    '!src/js/**/*.tpl.js',
+                    '!src/js/pebble-js-app.js',
+                ],
+                dest:'./src/js/pebble-js-app.js',                
             },
         },
   });
