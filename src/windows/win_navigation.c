@@ -34,8 +34,8 @@ static char parkings_slot_buffer[8];
 
 static void compass_heading_handler(CompassHeadingData heading_data) {
   // rotate needle accordingly
-  double tmp = ((double) TRIG_MAX_ANGLE) * ((double) t_angle->value->int32 / 360);
-  LOG("COMPASS redraw : %ld and angle %ld (%lf)", heading_data.magnetic_heading, t_angle->value->int32, tmp);
+  double tmp = ((double) TRIG_MAX_ANGLE) * ((double) Stations[0].angle / 360);
+  LOG("COMPASS redraw : %ld and angle %ld (%lf)", heading_data.magnetic_heading, Stations[0].angle, tmp);
   gpath_rotate_to(s_arrow, (heading_data.magnetic_heading + (int) tmp));
 
   // trigger layer for refresh
@@ -118,10 +118,10 @@ void win_navigation_update () {
         return;
     }
 
-    snprintf(text_layer_buffer, 8, "%ld", t_free_bikes);
+    snprintf(text_layer_buffer, 8, "%ld", Stations[0].free_bike);
     text_layer_set_text(s_text_layer_free_bike, text_layer_buffer);
 
-    snprintf(parkings_slot_buffer, 8, "%ld", t_parkings);
+    snprintf(parkings_slot_buffer, 8, "%ld", Stations[0].empty_slots);
     text_layer_set_text(s_text_layer_parking, parkings_slot_buffer);
 }
 

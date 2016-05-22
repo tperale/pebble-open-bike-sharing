@@ -8,8 +8,12 @@
         "KEY_NUMBER_OF_STATIONS": 5,
         "KEY_INDEX" : 6,
         "KEY_COMMUNICATION": 99,
+
         "GET_LOCATION": 100,
         "GET_STATIONS": 101,
+
+        "RESPONSE_STATIONS" : 111,
+        "RESPONSE_UPDATE_STATIONS" : 110,
 
         "api_address": 200
     },

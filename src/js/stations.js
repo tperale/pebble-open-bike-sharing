@@ -69,8 +69,9 @@ Stations.prototype.send = function () {
     // });
     var result = this.stations[0].getPlain();
     console.log('Sending : ' + JSON.stringify(result));
-    result.KEY_DISTANCE = format_distance(result.KEY_DISTANCE); // TODO CHANGE THIS SHIT
-    // result.KEY_INDEX = index;
+    // result.KEY_DISTANCE = format_distance(result.KEY_DISTANCE); // TODO CHANGE THIS SHIT
+    result.KEY_DISTANCE = result.KEY_DISTANCE;
+    result.KEY_INDEX = 0;
     result.KEY_NUMBER_OF_STATIONS = this.stations.length;
     Pebble.sendAppMessage(result,
         function(e) {

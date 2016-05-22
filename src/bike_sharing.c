@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "./windows/win_main.h"
-#include "globals.h"
+#include "./appinfo.h"
+#include "./globals.h"
 
 static void send_request (int value) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Sending request : %i", value);
@@ -11,10 +12,8 @@ static void send_request (int value) {
     AppMessageResult result = app_message_outbox_begin(&out_iter);
 
     if (result == APP_MSG_OK) {
-        // Add an item to ask for weather data
         dict_write_int(out_iter, KEY_COMMUNICATION, &value, sizeof(int), false);
 
-        // Send this message
         result = app_message_outbox_send();
         if (result != APP_MSG_OK) {
             APP_LOG(APP_LOG_LEVEL_ERROR, "Error sending the outbox: %d", (int)result);
@@ -38,13 +37,17 @@ static void inbox_dropped_callback(AppMessageResult reason, void *context) {
 }
 
 static void inbox_connected_person_callback(DictionaryIterator *iterator, void *context) {
-  /* Get the name of the hackerspace. */
-  t_name = dict_find(iterator, KEY_NAME);
-  t_distance = dict_find(iterator, KEY_DISTANCE);
-  t_angle = dict_find(iterator, KEY_ANGLE);
-  t_free_bikes = dict_find(iterator, KEY_FREE_BIKE)->value->int32;
-  t_parkings = dict_find(iterator, KEY_PARKINGS)->value->int32;
-  station_number = dict_find(iterator, KEY_NUMBER_OF_STATIONS)->value->int32;
+  uint32_t station_number = dict_find(iterator, KEY_NUMBER_OF_STATIONS)->value->uint32;
+  int32_t index = dict_find(iterator, KEY_INDEX)->value->int32;
+
+  if (!Stations) {
+      Stations = create_stations_array(station_number);
+  } else {
+      // If the stations array has already been allocated.
+      // free_stations(Stations);
+  }
+
+  add_station_from_dict(Stations, index, iterator);
 
   win_main_update ();
 }

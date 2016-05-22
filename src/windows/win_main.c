@@ -84,7 +84,7 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
 /* @desc Assign functions callback to items.
  */
 static void menu_select_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data) {
-    if (station_number) {
+    if (Stations != NULL) {
         win_navigation_show();
     }
 }
@@ -138,10 +138,10 @@ void win_main_update (void) {
       return;
   }
 
-  snprintf(station_name_buffer, 32, "%s", t_name->value->cstring);
+  snprintf(station_name_buffer, 32, "%s", Stations[0].name);
   space_info_title[0] = station_name_buffer;
 
-  snprintf(station_number_buffer, 32, "%s", t_distance->value->cstring);
+  snprintf(station_number_buffer, 32, "%lu", Stations[0].distance);
   space_info_subtitle[0] = station_number_buffer;
 
   layer_mark_dirty(menu_layer_get_layer(s_menu_layer));
