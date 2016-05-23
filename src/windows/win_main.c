@@ -32,8 +32,12 @@ uint32_t current_index = 0;
 void update_with_index(uint32_t index);
 
 static void direction_handler (CompassHeadingData heading_data) {
-    LOG("COMPASS redraw : %ld", heading_data.magnetic_heading);
-    gpath_rotate_to(s_arrow, heading_data.magnetic_heading);
+    double tmp = 0;
+    if (Stations) {
+        double tmp = ((double) TRIG_MAX_ANGLE) * ((double) Stations[current_index].angle / 360);
+        LOG("COMPASS redraw : %ld and angle %ld (%lf)", heading_data.magnetic_heading, Stations[current_index].angle, tmp);
+    }
+    gpath_rotate_to(s_arrow, heading_data.magnetic_heading + (int) tmp);
 
     /* if(heading_data.compass_status == CompassStatusDataInvalid) { */
     /* } else if (heading_data.compass_status == CompassStatusCalibrating) { */
