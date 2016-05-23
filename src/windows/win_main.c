@@ -20,6 +20,7 @@ static char free_bike_buffer[8];
 static TextLayer* s_text_layer_parking;
 static char parkings_slots_buffer[8];
 
+static char current_name_buffer[32];
 static TextLayer* s_text_layer_current_destination;
 static TextLayer* s_text_layer_next_destination;
 
@@ -126,9 +127,10 @@ void update_with_index(uint32_t index) {
     DEBUG("New current index %ld", current_index);
 
     if (Stations) {
+        snprintf(current_name_buffer, 32, "• %s", Stations[index].name);
         text_layer_set_text(
                 s_text_layer_current_destination,
-                Stations[index].name);
+                current_name_buffer);
 
         snprintf(free_bike_buffer, 8, "%ld", Stations[index].free_bike);
         text_layer_set_text(
