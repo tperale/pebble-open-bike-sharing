@@ -4,6 +4,7 @@
 
 static Window* window;
 
+static Layer* s_direction_layer;
 static GPath* s_arrow;
 static GPoint center;
 
@@ -26,6 +27,20 @@ uint32_t current_index = 0;
 
 void update_with_index(uint32_t index);
 
+static void direction_handler (CompassHeadingData heading_data) {
+    LOG("COMPASS redraw : %ld", heading_data.magnetic_heading);
+    gpath_rotate_to(s_arrow, heading_data.magnetic_heading);
+
+    /* if(heading_data.compass_status == CompassStatusDataInvalid) { */
+    /* } else if (heading_data.compass_status == CompassStatusCalibrating) { */
+    /* } */
+    layer_mark_dirty(s_direction_layer);
+}
+static void direction_update_proc(Layer* layer, GContext* ctx) {
+    gpath_draw_filled(ctx, s_arrow);
+    gpath_draw_outline(ctx, s_arrow);
+}
+
 static void load_next () {
     update_with_index(current_index + 1);
 }
@@ -41,6 +56,19 @@ static void window_load(Window *window) {
     Layer* window_layer = window_get_root_layer(window);
     GRect bounds = layer_get_bounds(window_layer);
 
+    /* Layer for the needle update. */
+    s_direction_layer = layer_create(bounds);
+    layer_set_update_proc(s_direction_layer, direction_update_proc);
+    layer_add_child(window_layer, s_direction_layer);
+    /* Needle to show the direction. */
+    center = GPoint(bounds.size.w / 2, bounds.size.h / 2);
+    s_arrow = gpath_create(&INDICATION_ARROW);
+    gpath_move_to(s_arrow, center);
+
+    s_direction_layer = layer_create(bounds);
+    layer_set_update_proc(s_direction_layer, direction_update_proc);
+    layer_add_child(window_layer, s_direction_layer);
+
     /* Setting up the layer to write the current destination. */
     s_text_layer_current_destination = text_layer_create(GRect(0, 0, bounds.size.w, bounds.size.h / 8));
     text_layer_set_text_alignment(s_text_layer_current_destination, GTextAlignmentLeft);
@@ -53,15 +81,12 @@ static void window_load(Window *window) {
     text_layer_set_background_color(s_text_layer_next_destination, GColorClear);
     layer_add_child(window_layer, text_layer_get_layer(s_text_layer_next_destination));
 
-    center = GPoint(bounds.size.w / 2, bounds.size.h / 2);
-    gpath_move_to(s_arrow, center);
-
     /* NUMBER OF FREE BIKE IN THE STATION */
     /* ICON : */
-    /* s_bicycle_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BICYCLE_BITMAP); */
-    /* s_bicycle_bitmap_layer = bitmap_layer_create(GRect(bounds.size.h / 8, 0, bounds.size.w / 4, ( 2 * bounds.size.h) / 8)); */
-    /* bitmap_layer_set_bitmap(s_bicycle_bitmap_layer, s_bicycle_bitmap); */
-    /* layer_add_child(window_layer, bitmap_layer_get_layer(s_bicycle_bitmap_layer)); */
+    s_bicycle_bitmap_layer = bitmap_layer_create(GRect(0, bounds.size.h / 8, bounds.size.w / 4, bounds.size.h / 8));
+    s_bicycle_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BICYCLE_BITMAP);
+    bitmap_layer_set_bitmap(s_bicycle_bitmap_layer, s_bicycle_bitmap);
+    layer_add_child(window_layer, bitmap_layer_get_layer(s_bicycle_bitmap_layer));
     /* TEXT : */
     s_text_layer_free_bike = text_layer_create(GRect(bounds.size.w / 4, bounds.size.h / 8, bounds.size.w / 4, bounds.size.h / 8));
     text_layer_set_text_alignment(s_text_layer_free_bike, GTextAlignmentLeft);
@@ -70,10 +95,10 @@ static void window_load(Window *window) {
 
     /* NUMBER OF PARKING SLOTS */
     /* ICON : */
-    /* s_parking_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PARKING_BITMAP); */
-    /* s_bicycle_bitmap_layer = bitmap_layer_create(GRect(bounds.size.w / 2, 0, (3 * bounds.size.w) / 4, bounds.size.h / 7)); */
-    /* bitmap_layer_set_bitmap(s_parking_bitmap_layer, s_parking_bitmap); */
-    /* layer_add_child(window_layer, bitmap_layer_get_layer(s_parking_bitmap_layer)); */
+    s_parking_bitmap_layer = bitmap_layer_create(GRect(bounds.size.w / 2, bounds.size.h / 8, bounds.size.w / 4, bounds.size.h / 8));
+    s_parking_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PARKING_BITMAP);
+    bitmap_layer_set_bitmap(s_parking_bitmap_layer, s_parking_bitmap);
+    layer_add_child(window_layer, bitmap_layer_get_layer(s_parking_bitmap_layer));
     /* TEXT : */
     s_text_layer_parking = text_layer_create(GRect((3 * bounds.size.w) / 4, bounds.size.h / 8, bounds.size.w / 4, bounds.size.h / 8));
     text_layer_set_text_alignment(s_text_layer_parking, GTextAlignmentLeft);
@@ -84,7 +109,10 @@ static void window_load(Window *window) {
 }
 
 static void window_unload(Window *window) {
-  // Destroy GBitmap
+  gbitmap_destroy(s_bicycle_bitmap);
+  bitmap_layer_destroy(s_bicycle_bitmap_layer);
+  gbitmap_destroy(s_parking_bitmap);
+  bitmap_layer_destroy(s_parking_bitmap_layer);
 }
 
 void update_with_index(uint32_t index) {
@@ -121,6 +149,9 @@ void update_with_index(uint32_t index) {
 }
 
 void win_main_init (void) {
+  compass_service_set_heading_filter(DEG_TO_TRIGANGLE(2));
+  compass_service_subscribe(&direction_handler);
+
   window = window_create();
   window_set_window_handlers(window, (WindowHandlers) {
     .load = window_load,
@@ -135,15 +166,6 @@ void win_main_update (void) {
   }
 
   update_with_index(0);
-
-  /* snprintf(station_name_buffer, 32, "%s", Stations[0].name); */
-  /* space_info_title[0] = station_name_buffer; */
-
-  /* snprintf(station_number_buffer, 32, "%lu", Stations[0].distance); */
-  /* space_info_subtitle[0] = station_number_buffer; */
-
-  /* layer_mark_dirty(menu_layer_get_layer(s_menu_layer)); */
-  /* menu_layer_reload_data(s_menu_layer); */
 }
 
 void win_main_deinit (void) {
