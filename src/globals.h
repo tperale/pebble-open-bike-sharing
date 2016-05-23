@@ -6,5 +6,6 @@
 #define BUFFER_SIZE 32
 
 extern s_station* Stations;
+extern uint32_t station_number;
 
 #endif

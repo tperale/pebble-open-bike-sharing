@@ -4,7 +4,7 @@
 #include <string.h>
 
 void free_stations(s_station* stations_array) {
-    WARN("Freeing the 'stations_array'.")
+    WARN("Freeing the 'stations_array'.");
     free(stations_array);
 }
 
