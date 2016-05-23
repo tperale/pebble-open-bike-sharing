@@ -73,13 +73,15 @@ static void window_load(Window *window) {
     /* Setting up the layer to write the current destination. */
     s_text_layer_current_destination = text_layer_create(GRect(0, 0, bounds.size.w, bounds.size.h / 8));
     text_layer_set_text_alignment(s_text_layer_current_destination, GTextAlignmentLeft);
-    text_layer_set_background_color(s_text_layer_current_destination, GColorClear);
+    text_layer_set_background_color(s_text_layer_current_destination, GColorBlack);
+    text_layer_set_text_color(s_text_layer_current_destination, GColorClear);
     layer_add_child(window_layer, text_layer_get_layer(s_text_layer_current_destination));
 
     /* Setting up the layer to write the next destination. */
     s_text_layer_next_destination = text_layer_create(GRect(0, (7 * bounds.size.h) / 8, bounds.size.w, bounds.size.h));
     text_layer_set_text_alignment(s_text_layer_next_destination, GTextAlignmentLeft);
-    text_layer_set_background_color(s_text_layer_next_destination, GColorClear);
+    text_layer_set_background_color(s_text_layer_next_destination, GColorBlack);
+    text_layer_set_text_color(s_text_layer_next_destination, GColorClear);
     layer_add_child(window_layer, text_layer_get_layer(s_text_layer_next_destination));
 
     /* NUMBER OF FREE BIKE IN THE STATION */
