@@ -20,6 +20,9 @@ static char free_bike_buffer[8];
 static TextLayer* s_text_layer_parking;
 static char parkings_slots_buffer[8];
 
+static TextLayer* s_text_layer_distance;
+static char distance_buffer[16];
+
 static char current_name_buffer[32];
 static TextLayer* s_text_layer_current_destination;
 static TextLayer* s_text_layer_next_destination;
@@ -77,13 +80,6 @@ static void window_load(Window *window) {
     text_layer_set_text_color(s_text_layer_current_destination, GColorClear);
     layer_add_child(window_layer, text_layer_get_layer(s_text_layer_current_destination));
 
-    /* Setting up the layer to write the next destination. */
-    s_text_layer_next_destination = text_layer_create(GRect(0, (7 * bounds.size.h) / 8, bounds.size.w, bounds.size.h));
-    text_layer_set_text_alignment(s_text_layer_next_destination, GTextAlignmentLeft);
-    text_layer_set_background_color(s_text_layer_next_destination, GColorBlack);
-    text_layer_set_text_color(s_text_layer_next_destination, GColorClear);
-    layer_add_child(window_layer, text_layer_get_layer(s_text_layer_next_destination));
-
     /* NUMBER OF FREE BIKE IN THE STATION */
     /* ICON : */
     s_bicycle_bitmap_layer = bitmap_layer_create(GRect(0, bounds.size.h / 8, bounds.size.w / 4, bounds.size.h / 8));
@@ -107,6 +103,21 @@ static void window_load(Window *window) {
     text_layer_set_text_alignment(s_text_layer_parking, GTextAlignmentLeft);
     text_layer_set_background_color(s_text_layer_parking, GColorClear);
     layer_add_child(window_layer, text_layer_get_layer(s_text_layer_parking));
+
+    /* DISTANCE LAYER */
+    s_text_layer_distance = text_layer_create(GRect(0, (6 * bounds.size.h) / 8, bounds.size.w / 2, bounds.size.h / 4));
+    text_layer_set_text_alignment(s_text_layer_distance, GTextAlignmentLeft);
+    text_layer_set_background_color(s_text_layer_distance, GColorClear);
+    GFont s_font = fonts_get_system_font(FONT_KEY_ROBOTO_CONDENSED_21);
+    text_layer_set_font(s_text_layer_distance, s_font);
+    layer_add_child(window_layer, text_layer_get_layer(s_text_layer_distance));
+
+    /* Setting up the layer to write the next destination. */
+    s_text_layer_next_destination = text_layer_create(GRect(0, (7 * bounds.size.h) / 8, bounds.size.w, bounds.size.h));
+    text_layer_set_text_alignment(s_text_layer_next_destination, GTextAlignmentLeft);
+    text_layer_set_background_color(s_text_layer_next_destination, GColorBlack);
+    text_layer_set_text_color(s_text_layer_next_destination, GColorClear);
+    layer_add_child(window_layer, text_layer_get_layer(s_text_layer_next_destination));
 
     window_set_click_config_provider(window, click_config);
 }
@@ -147,6 +158,18 @@ void update_with_index(uint32_t index) {
         text_layer_set_text(
                 s_text_layer_next_destination,
                 Stations[(index + 1) % station_number].name);
+
+        if (Stations[index].distance / 1000 > 3) {
+            // If the distance is longer than 3km
+            // show the distance in km.
+            snprintf(distance_buffer, 16, "%ld km", Stations[index].distance / 1000);
+        } else {
+            // Else show it in m.
+            snprintf(distance_buffer, 16, "%ld m", Stations[index].distance);
+        }
+        text_layer_set_text(
+                s_text_layer_distance,
+                distance_buffer);
     } else {
         WARN("Trying to update layer without any 'Stations'");
     }
@@ -169,7 +192,7 @@ void win_main_update (void) {
       return;
   }
 
-  update_with_index(0);
+  update_with_index(current_index);
 }
 
 void win_main_deinit (void) {

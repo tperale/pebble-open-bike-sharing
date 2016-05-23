@@ -68,7 +68,8 @@ Station.prototype.distanceFrom = function (latitude, longitude) {
     if (unit=='K') { dist = dist * 1.609344; }
     if (unit=='N') { dist = dist * 0.8684; }
 
-    this.distance = dist;
+    this.distance = dist * 1000;
+    // Converting in meters TOCHANGE for miles.
 
     return dist;
 };
