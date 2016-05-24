@@ -45,6 +45,7 @@ void destroy_station_info() {
 }
 
 void create_station_info(Layer* window_layer, GRect bounds) {
+    GFont s_font = fonts_get_system_font(FONT_KEY_GOTHIC_18);
     /* NUMBER OF FREE BIKE IN THE STATION */
     /* ICON : */
     s_bicycle_bitmap_layer = bitmap_layer_create(GRect(0, bounds.size.h / 8, bounds.size.w / 4, bounds.size.h / 8));
@@ -53,6 +54,7 @@ void create_station_info(Layer* window_layer, GRect bounds) {
     layer_add_child(window_layer, bitmap_layer_get_layer(s_bicycle_bitmap_layer));
     /* TEXT : */
     s_text_layer_free_bike = text_layer_create(GRect(bounds.size.w / 4, bounds.size.h / 8, bounds.size.w / 4, bounds.size.h / 8));
+    text_layer_set_font(s_text_layer_free_bike, s_font);
     text_layer_set_text_alignment(s_text_layer_free_bike, GTextAlignmentCenter);
     text_layer_set_background_color(s_text_layer_free_bike, GColorClear);
     layer_add_child(window_layer, text_layer_get_layer(s_text_layer_free_bike));
@@ -65,6 +67,7 @@ void create_station_info(Layer* window_layer, GRect bounds) {
     layer_add_child(window_layer, bitmap_layer_get_layer(s_parking_bitmap_layer));
     /* TEXT : */
     s_text_layer_parking = text_layer_create(GRect((3 * bounds.size.w) / 4, bounds.size.h / 8, bounds.size.w / 4, bounds.size.h / 8));
+    text_layer_set_font(s_text_layer_parking, s_font);
     text_layer_set_text_alignment(s_text_layer_parking, GTextAlignmentCenter);
     text_layer_set_background_color(s_text_layer_parking, GColorClear);
     layer_add_child(window_layer, text_layer_get_layer(s_text_layer_parking));
