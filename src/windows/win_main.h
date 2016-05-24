@@ -4,11 +4,12 @@
 #include <pebble.h>
 
 static const GPathInfo INDICATION_ARROW = {
-    3,
+    4,
     (GPoint[]) {
-        { -8, 0 },
-        { 8, 0 },
-        { 0, -36 }
+        { -12, 22 },
+        { 0, 10 },
+        { 12, 22 },
+        { 0, -28 }
     }
 };
 

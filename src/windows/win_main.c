@@ -46,7 +46,6 @@ static void direction_handler (CompassHeadingData heading_data) {
 }
 static void direction_update_proc(Layer* layer, GContext* ctx) {
     gpath_draw_filled(ctx, s_arrow);
-    gpath_draw_outline(ctx, s_arrow);
 }
 
 static void load_next () {
