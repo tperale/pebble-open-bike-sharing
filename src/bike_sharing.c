@@ -36,8 +36,8 @@ static void inbox_dropped_callback(AppMessageResult reason, void *context) {
   APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");
 }
 
-static void inbox_connected_person_callback(DictionaryIterator *iterator, void *context) {
-  uint32_t station_number = dict_find(iterator, KEY_NUMBER_OF_STATIONS)->value->uint32;
+static void inbox_callback(DictionaryIterator *iterator, void *context) {
+  station_number = dict_find(iterator, KEY_NUMBER_OF_STATIONS)->value->uint32;
   int32_t index = dict_find(iterator, KEY_INDEX)->value->int32;
 
   if (!Stations) {
@@ -62,7 +62,7 @@ int main(void) {
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Done initializing, pushed main window");
 
-  app_message_register_inbox_received(inbox_connected_person_callback);
+  app_message_register_inbox_received(inbox_callback);
   app_message_register_inbox_dropped(inbox_dropped_callback);
   app_message_register_outbox_failed(outbox_failed_callback);
   app_message_register_outbox_sent(outbox_sent_callback);

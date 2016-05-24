@@ -1,128 +1,187 @@
 #include "win_main.h"
 #include "../globals.h"
-#include "win_navigation.h"
+#include "../libs/pebble-assist.h"
 
 static Window* window;
 
-static MenuLayer* s_menu_layer;
+static Layer* s_direction_layer;
+static GPath* s_arrow;
+static GPoint center;
 
-#define MAX_NUMBER_OF_STATIONS 1
+static GBitmap* s_bicycle_bitmap;
+static BitmapLayer* s_bicycle_bitmap_layer;
+static GBitmap* s_parking_bitmap;
+static BitmapLayer* s_parking_bitmap_layer;
 
-static char station_name_buffer[32];
-static char station_number_buffer[32];
+static Layer* s_direction_layer;
+static TextLayer* s_text_layer_free_bike;
+static char free_bike_buffer[8];
 
-static char* space_info_title[MAX_NUMBER_OF_STATIONS];
-static char* space_info_subtitle[MAX_NUMBER_OF_STATIONS];
-/* static char** space_info_icons[MAX_NUMBER_OF_MENU]; */
-static void (*space_info_callback[MAX_NUMBER_OF_STATIONS]) () = {};
+static TextLayer* s_text_layer_parking;
+static char parkings_slots_buffer[8];
 
+static TextLayer* s_text_layer_distance;
+static char distance_buffer[16];
 
-/* ------------------------------------------------------------------------
- *                      MENU HANDLING
- * ------------------------------------------------------------------------
- */
+static char current_name_buffer[32];
+static TextLayer* s_text_layer_current_destination;
+static TextLayer* s_text_layer_next_destination;
 
-/* @desc Return number of sections.
- *
- * @param {menu_layer} :
- * @param {data} :
- *
- * @return {uint16_t} : Number of sections.
- */
-/* - Header.
- * - Navigation.
- */
-#define NUMBER_OF_SECTIONS 1
-static uint16_t menu_get_num_sections_callback(MenuLayer* menu_layer, void* data) {
-    return NUMBER_OF_SECTIONS;
-}
+uint32_t current_index = 0;
 
-/* @desc Get number of "items" by "section".
- *
- * @param {menu_layer} :
- * @param {section_index} :
- * @param {data} :
- */
-/* Only 1 image is shown. */
-static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t section_index, void* data) {
-    return MAX_NUMBER_OF_STATIONS;
-}
+void update_with_index(uint32_t index);
 
-/* @desc Get header size.
- *
- * @param {menu_layer} :
- * @param {section_index} :
- * @param {data} :
- */
-static int16_t menu_get_header_height_callback(MenuLayer* menu_layer, uint16_t section_index, void* data) {
-    return MENU_CELL_BASIC_HEADER_HEIGHT;
-}
-
-/* @desc Draw the headers sections.
- *
- * @param {ctx} :
- * @param {cell_layer} :
- * @param {section_index} :
- * @param {data} :
- */
-static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, uint16_t section_index, void* data) {
-    switch (section_index) {
-        case 0:
-            menu_cell_basic_header_draw(ctx, cell_layer, "Villo stations.");
-            break;
-        default:
-            break;
+static void direction_handler (CompassHeadingData heading_data) {
+    double tmp = 0;
+    if (Stations) {
+        double tmp = ((double) TRIG_MAX_ANGLE) * ((double) Stations[current_index].angle / 360);
+        LOG("COMPASS redraw : %ld and angle %ld (%lf)", heading_data.magnetic_heading, Stations[current_index].angle, tmp);
     }
+    gpath_rotate_to(s_arrow, heading_data.magnetic_heading + (int) tmp);
+
+    /* if(heading_data.compass_status == CompassStatusDataInvalid) { */
+    /* } else if (heading_data.compass_status == CompassStatusCalibrating) { */
+    /* } */
+    layer_mark_dirty(s_direction_layer);
+}
+static void direction_update_proc(Layer* layer, GContext* ctx) {
+    gpath_draw_filled(ctx, s_arrow);
+    gpath_draw_outline(ctx, s_arrow);
 }
 
-/* @desc Draw items in the section.
- */
-static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuIndex* cell_index, void* data) {
-    menu_cell_basic_draw(ctx, cell_layer, space_info_title[cell_index->row], space_info_subtitle[cell_index->row],NULL);
+static void load_next () {
+    update_with_index(current_index + 1);
 }
-
-/* @desc Assign functions callback to items.
- */
-static void menu_select_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data) {
-    if (Stations != NULL) {
-        win_navigation_show();
-    }
+static void load_previous () {
+    update_with_index(current_index - 1);
+}
+static void click_config () {
+    window_single_click_subscribe(BUTTON_ID_UP, load_previous);
+    window_single_click_subscribe(BUTTON_ID_DOWN, load_next);
 }
 
 static void window_load(Window *window) {
-  snprintf(station_name_buffer, 32, "Loading...");
-  space_info_title[0] = station_name_buffer;
+    Layer* window_layer = window_get_root_layer(window);
+    GRect bounds = layer_get_bounds(window_layer);
 
-  snprintf(station_number_buffer, 32, "Loading...");
-  space_info_subtitle[0] = station_number_buffer;
+    /* Layer for the needle update. */
+    s_direction_layer = layer_create(bounds);
+    layer_set_update_proc(s_direction_layer, direction_update_proc);
+    layer_add_child(window_layer, s_direction_layer);
+    /* Needle to show the direction. */
+    center = GPoint(bounds.size.w / 2, bounds.size.h / 2);
+    s_arrow = gpath_create(&INDICATION_ARROW);
+    gpath_move_to(s_arrow, center);
 
-  Layer *window_layer = window_get_root_layer(window);
-  GRect bounds = layer_get_bounds(window_layer);
+    s_direction_layer = layer_create(bounds);
+    layer_set_update_proc(s_direction_layer, direction_update_proc);
+    layer_add_child(window_layer, s_direction_layer);
 
-  s_menu_layer = menu_layer_create(bounds);
-  menu_layer_set_callbacks(s_menu_layer, NULL, (MenuLayerCallbacks) {
-    .get_num_sections = menu_get_num_sections_callback,
-    .get_num_rows = menu_get_num_rows_callback,
-    .get_header_height = menu_get_header_height_callback,
-    .draw_header = menu_draw_header_callback,
-    .draw_row = menu_draw_row_callback,
-    .select_click = menu_select_callback,
-    .get_cell_height = NULL,
-  });
+    /* Setting up the layer to write the current destination. */
+    s_text_layer_current_destination = text_layer_create(GRect(0, 0, bounds.size.w, bounds.size.h / 8));
+    text_layer_set_text_alignment(s_text_layer_current_destination, GTextAlignmentLeft);
+    text_layer_set_background_color(s_text_layer_current_destination, GColorBlack);
+    text_layer_set_text_color(s_text_layer_current_destination, GColorClear);
+    layer_add_child(window_layer, text_layer_get_layer(s_text_layer_current_destination));
 
-  // Bind the menu layer's click config provider to the window for interactivity
-  menu_layer_set_click_config_onto_window(s_menu_layer, window);
+    /* NUMBER OF FREE BIKE IN THE STATION */
+    /* ICON : */
+    s_bicycle_bitmap_layer = bitmap_layer_create(GRect(0, bounds.size.h / 8, bounds.size.w / 4, bounds.size.h / 8));
+    s_bicycle_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BICYCLE_BITMAP);
+    bitmap_layer_set_bitmap(s_bicycle_bitmap_layer, s_bicycle_bitmap);
+    layer_add_child(window_layer, bitmap_layer_get_layer(s_bicycle_bitmap_layer));
+    /* TEXT : */
+    s_text_layer_free_bike = text_layer_create(GRect(bounds.size.w / 4, bounds.size.h / 8, bounds.size.w / 4, bounds.size.h / 8));
+    text_layer_set_text_alignment(s_text_layer_free_bike, GTextAlignmentLeft);
+    text_layer_set_background_color(s_text_layer_free_bike, GColorClear);
+    layer_add_child(window_layer, text_layer_get_layer(s_text_layer_free_bike));
 
-  layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
+    /* NUMBER OF PARKING SLOTS */
+    /* ICON : */
+    s_parking_bitmap_layer = bitmap_layer_create(GRect(bounds.size.w / 2, bounds.size.h / 8, bounds.size.w / 4, bounds.size.h / 8));
+    s_parking_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PARKING_BITMAP);
+    bitmap_layer_set_bitmap(s_parking_bitmap_layer, s_parking_bitmap);
+    layer_add_child(window_layer, bitmap_layer_get_layer(s_parking_bitmap_layer));
+    /* TEXT : */
+    s_text_layer_parking = text_layer_create(GRect((3 * bounds.size.w) / 4, bounds.size.h / 8, bounds.size.w / 4, bounds.size.h / 8));
+    text_layer_set_text_alignment(s_text_layer_parking, GTextAlignmentLeft);
+    text_layer_set_background_color(s_text_layer_parking, GColorClear);
+    layer_add_child(window_layer, text_layer_get_layer(s_text_layer_parking));
+
+    /* DISTANCE LAYER */
+    s_text_layer_distance = text_layer_create(GRect(0, (6 * bounds.size.h) / 8, bounds.size.w / 2, bounds.size.h / 4));
+    text_layer_set_text_alignment(s_text_layer_distance, GTextAlignmentLeft);
+    text_layer_set_background_color(s_text_layer_distance, GColorClear);
+    GFont s_font = fonts_get_system_font(FONT_KEY_ROBOTO_CONDENSED_21);
+    text_layer_set_font(s_text_layer_distance, s_font);
+    layer_add_child(window_layer, text_layer_get_layer(s_text_layer_distance));
+
+    /* Setting up the layer to write the next destination. */
+    s_text_layer_next_destination = text_layer_create(GRect(0, (7 * bounds.size.h) / 8, bounds.size.w, bounds.size.h));
+    text_layer_set_text_alignment(s_text_layer_next_destination, GTextAlignmentLeft);
+    text_layer_set_background_color(s_text_layer_next_destination, GColorBlack);
+    text_layer_set_text_color(s_text_layer_next_destination, GColorClear);
+    layer_add_child(window_layer, text_layer_get_layer(s_text_layer_next_destination));
+
+    window_set_click_config_provider(window, click_config);
 }
 
 static void window_unload(Window *window) {
-  // Destroy GBitmap
-  menu_layer_destroy(s_menu_layer);
+  gbitmap_destroy(s_bicycle_bitmap);
+  bitmap_layer_destroy(s_bicycle_bitmap_layer);
+  gbitmap_destroy(s_parking_bitmap);
+  bitmap_layer_destroy(s_parking_bitmap_layer);
+}
+
+void update_with_index(uint32_t index) {
+    if (window_stack_get_top_window() != window) {
+        current_index = index;
+        return;
+    }
+
+    current_index = (index % station_number);
+
+    DEBUG("New current index %ld", current_index);
+
+    if (Stations) {
+        snprintf(current_name_buffer, 32, "• %s", Stations[index].name);
+        text_layer_set_text(
+                s_text_layer_current_destination,
+                current_name_buffer);
+
+        snprintf(free_bike_buffer, 8, "%ld", Stations[index].free_bike);
+        text_layer_set_text(
+                s_text_layer_free_bike,
+                free_bike_buffer);
+
+        snprintf(parkings_slots_buffer, 8, "%ld", Stations[index].empty_slots);
+        text_layer_set_text(
+                s_text_layer_parking,
+                parkings_slots_buffer);
+
+        text_layer_set_text(
+                s_text_layer_next_destination,
+                Stations[(index + 1) % station_number].name);
+
+        if (Stations[index].distance / 1000 > 3) {
+            // If the distance is longer than 3km
+            // show the distance in km.
+            snprintf(distance_buffer, 16, "%ld km", Stations[index].distance / 1000);
+        } else {
+            // Else show it in m.
+            snprintf(distance_buffer, 16, "%ld m", Stations[index].distance);
+        }
+        text_layer_set_text(
+                s_text_layer_distance,
+                distance_buffer);
+    } else {
+        WARN("Trying to update layer without any 'Stations'");
+    }
 }
 
 void win_main_init (void) {
-  win_navigation_init();
+  compass_service_set_heading_filter(DEG_TO_TRIGANGLE(2));
+  compass_service_subscribe(&direction_handler);
 
   window = window_create();
   window_set_window_handlers(window, (WindowHandlers) {
@@ -134,20 +193,12 @@ void win_main_init (void) {
 
 void win_main_update (void) {
   if (window_stack_get_top_window() != window) {
-      win_navigation_update();
       return;
   }
 
-  snprintf(station_name_buffer, 32, "%s", Stations[0].name);
-  space_info_title[0] = station_name_buffer;
-
-  snprintf(station_number_buffer, 32, "%lu", Stations[0].distance);
-  space_info_subtitle[0] = station_number_buffer;
-
-  layer_mark_dirty(menu_layer_get_layer(s_menu_layer));
-  menu_layer_reload_data(s_menu_layer);
+  update_with_index(current_index);
 }
 
 void win_main_deinit (void) {
-  window_destroy(window);
+  window_destroy_safe(window);
 }
