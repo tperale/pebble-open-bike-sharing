@@ -1,15 +1,12 @@
 #include "win_main.h"
 
 #include "station_info.h"
+#include "compass_info.h"
 
 #include "../globals.h"
 #include "../libs/pebble-assist.h"
 
 static Window* window;
-
-static Layer* s_direction_layer;
-static GPath* s_arrow;
-static GPoint center;
 
 static TextLayer* s_text_layer_distance;
 static char distance_buffer[16];
@@ -18,26 +15,7 @@ static char current_name_buffer[32];
 static TextLayer* s_text_layer_current_destination;
 static TextLayer* s_text_layer_next_destination;
 
-uint32_t current_index = 0;
-
 void update_with_index(uint32_t index);
-
-static void direction_handler (CompassHeadingData heading_data) {
-    double tmp = 0;
-    if (Stations) {
-        double tmp = ((double) TRIG_MAX_ANGLE) * ((double) Stations[current_index].angle / 360);
-        LOG("COMPASS redraw : %ld and angle %ld (%lf)", heading_data.magnetic_heading, Stations[current_index].angle, tmp);
-    }
-    gpath_rotate_to(s_arrow, heading_data.magnetic_heading + (int) tmp);
-
-    /* if(heading_data.compass_status == CompassStatusDataInvalid) { */
-    /* } else if (heading_data.compass_status == CompassStatusCalibrating) { */
-    /* } */
-    layer_mark_dirty(s_direction_layer);
-}
-static void direction_update_proc(Layer* layer, GContext* ctx) {
-    gpath_draw_filled(ctx, s_arrow);
-}
 
 static void load_next () {
     update_with_index(current_index + 1);
@@ -54,18 +32,7 @@ static void window_load(Window *window) {
     Layer* window_layer = window_get_root_layer(window);
     GRect bounds = layer_get_bounds(window_layer);
 
-    /* Layer for the needle update. */
-    s_direction_layer = layer_create(bounds);
-    layer_set_update_proc(s_direction_layer, direction_update_proc);
-    layer_add_child(window_layer, s_direction_layer);
-    /* Needle to show the direction. */
-    center = GPoint(bounds.size.w / 2, bounds.size.h / 2);
-    s_arrow = gpath_create(&INDICATION_ARROW);
-    gpath_move_to(s_arrow, center);
-
-    s_direction_layer = layer_create(bounds);
-    layer_set_update_proc(s_direction_layer, direction_update_proc);
-    layer_add_child(window_layer, s_direction_layer);
+    create_compass(window_layer, bounds);
 
     /* Setting up the layer to write the current destination. */
     s_text_layer_current_destination = text_layer_create(GRect(0, 0, bounds.size.w, bounds.size.h / 8));
@@ -96,6 +63,7 @@ static void window_load(Window *window) {
 
 static void window_unload(Window *window) {
     destroy_station_info();
+    destroy_compass();
 }
 
 void update_with_index(uint32_t index) {
@@ -137,25 +105,22 @@ void update_with_index(uint32_t index) {
 }
 
 void win_main_init (void) {
-  compass_service_set_heading_filter(DEG_TO_TRIGANGLE(2));
-  compass_service_subscribe(&direction_handler);
-
-  window = window_create();
-  window_set_window_handlers(window, (WindowHandlers) {
-    .load = window_load,
-    .unload = window_unload,
-  });
-  window_stack_push(window, true);
+    window = window_create();
+    window_set_window_handlers(window, (WindowHandlers) {
+        .load = window_load,
+        .unload = window_unload,
+    });
+    window_stack_push(window, true);
 }
 
 void win_main_update (void) {
-  if (window_stack_get_top_window() != window) {
-      return;
-  }
+    if (window_stack_get_top_window() != window) {
+        return;
+    }
 
-  update_with_index(current_index);
+    update_with_index(current_index);
 }
 
 void win_main_deinit (void) {
-  window_destroy_safe(window);
+    window_destroy_safe(window);
 }
