@@ -28,12 +28,21 @@ Stations.prototype.add = function (station) {
         var high = this.stations.length;
         var index = Math.floor(this.stations.length / 2);
         var low = 0;
-        while (low < high && index != low && index != high) {
+        while (low < high) {
             console.log('---------\nLow : ' + low + '\nHigh : ' + high + '\nIndex : ' + index + '\nCurrentDistance : ' + current.distance + '\nIndexDistance : ' + this.stations[index].distance);
+            if ((this.stations[index].distance == current.distance) ||
+                (index > 0 &&
+                 this.stations[index].distance < current.distance &&
+                 this.stations[(index - 1) % this.stations.length].distance >= current.distance
+                )
+               )
+            {
+                break;
+            }
             if (current.distance < this.stations[index].distance) {
                 high = index;
             } else {
-                low = index;
+                low = index + 1;
             }
             index = Math.floor( (low + high) / 2);
         }
