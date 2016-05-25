@@ -16,10 +16,10 @@ static const GPathInfo INDICATION_ARROW = {
 static Layer* s_direction_layer = NULL;
 static TextLayer* s_text_layer_calib_state = NULL;
 static GPath* s_arrow = NULL;
-static GPoint center;
+static GPoint center = {};
 
 static Layer* window_layer = NULL;
-static GRect bounds = NULL;
+static GRect bounds = {};
 
 /* @desc : Handle the compass datas
  *
@@ -83,7 +83,6 @@ static void draw_needle () {
  */
 void destroy_compass() {
     window_layer = NULL;
-    bounds = NULL;
 
     compass_service_unsubscribe();
 
@@ -96,7 +95,7 @@ void destroy_compass() {
     if (s_text_layer_calib_state != NULL) {
         // s_text_layer_calib_state can be not initialized
         // if the compass is already calibrated.
-        test_layer_destroy(s_text_layer_calib_state);
+        text_layer_destroy(s_text_layer_calib_state);
     }
 }
 
