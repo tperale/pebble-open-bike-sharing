@@ -3,6 +3,16 @@
 #include "../globals.h"
 #include "../libs/pebble-assist.h"
 
+static const GPathInfo INDICATION_ARROW = {
+    4,
+    (GPoint[]) {
+        { -12, 22 },
+        { 0, 10 },
+        { 12, 22 },
+        { 0, -28 }
+    }
+};
+
 static Layer* s_direction_layer = NULL;
 static TextLayer* s_text_layer_calib_state = NULL;
 static GPath* s_arrow = NULL;
