@@ -18,6 +18,13 @@ static TextLayer* s_text_layer_calib_state = NULL;
 static GPath* s_arrow = NULL;
 static GPoint center;
 
+static Layer* window_layer = NULL;
+static GRect bounds = NULL;
+
+/* @desc : Handle the compass datas
+ *
+ * @param {heading_data} : Compass data.
+ */
 static void direction_handler (CompassHeadingData heading_data) {
     double tmp = 0;
     if (Stations) {
@@ -48,11 +55,20 @@ static void direction_handler (CompassHeadingData heading_data) {
     layer_mark_dirty(s_direction_layer);
 }
 
+/* @desc : Redraw the needle each time it change postition.
+ *
+ * @param {leyer} : Layer to draw the needle on.
+ */
 static void direction_update_proc(Layer* layer, GContext* ctx) {
     gpath_draw_filled(ctx, s_arrow);
 }
 
-static void draw_needle (Layer* window_layer, GRect bounds) {
+/* @desc : Draw the needle from the base.
+ *
+ * @param {window_layer} : Layer to draw the needle on.
+ * @param {bounds} : Bounds of the window to draw the needle on.
+ */
+static void draw_needle () {
     /* Layer for the needle update. */
     s_direction_layer = layer_create(bounds);
     layer_set_update_proc(s_direction_layer, direction_update_proc);
@@ -63,13 +79,33 @@ static void draw_needle (Layer* window_layer, GRect bounds) {
     gpath_move_to(s_arrow, center);
 }
 
+/* @desc : Code to destroy the compasas.
+ */
 void destroy_compass() {
+    window_layer = NULL;
+    bounds = NULL;
+
     compass_service_unsubscribe();
+
+    gpath_destroy(s_arrow);
+    s_arrow = NULL;
+
+    layer_destroy(s_direction_layer);
+    s_direction_layer = NULL;
+
+    if (s_text_layer_calib_state != NULL) {
+        // s_text_layer_calib_state can be not initialized
+        // if the compass is already calibrated.
+        test_layer_destroy(s_text_layer_calib_state);
+    }
 }
 
-void create_compass(Layer* window_layer, GRect bounds) {
+void create_compass(Layer* win_layer, GRect b) {
+    window_layer = win_layer;
+    bounds = b;
+
     s_text_layer_calib_state = text_layer_create(GRect(bounds.size.w / 2, (5 * bounds.size.h) / 8, bounds.size.w / 2, bounds.size.h / 4));
-    draw_needle(window_layer, bounds);
+    draw_needle();
 
     compass_service_set_heading_filter(DEG_TO_TRIGANGLE(2));
     compass_service_subscribe(&direction_handler);
