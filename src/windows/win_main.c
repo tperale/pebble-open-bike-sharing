@@ -8,6 +8,8 @@
 
 static Window* window;
 
+static StatusBarLayer* status_bar;
+
 static TextLayer* s_text_layer_distance;
 static char distance_buffer[16];
 
@@ -32,10 +34,15 @@ static void window_load(Window *window) {
     Layer* window_layer = window_get_root_layer(window);
     GRect bounds = layer_get_bounds(window_layer);
 
+    status_bar = status_bar_layer_create();
+    GRect frame = GRect(0, 0, bounds.size.w, STATUS_BAR_LAYER_HEIGHT);
+    layer_set_frame(status_bar_layer_get_layer(status_bar), frame);
+    layer_add_child(window_layer, status_bar_layer_get_layer(status_bar));
+
     create_compass(window_layer, bounds);
 
     /* Setting up the layer to write the current destination. */
-    s_text_layer_current_destination = text_layer_create(GRect(0, 0, bounds.size.w, bounds.size.h / 8));
+    s_text_layer_current_destination = text_layer_create(GRect(0, STATUS_BAR_LAYER_HEIGHT, bounds.size.w, bounds.size.h / 8));
     text_layer_set_text_alignment(s_text_layer_current_destination, GTextAlignmentLeft);
     text_layer_set_background_color(s_text_layer_current_destination, GColorBlack);
     text_layer_set_text_color(s_text_layer_current_destination, GColorClear);
