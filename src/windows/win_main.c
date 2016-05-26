@@ -86,24 +86,24 @@ void update_with_index(uint32_t index) {
     DEBUG("New current index %ld", current_index);
 
     if (Stations) {
-        snprintf(current_name_buffer, 32, "• %s", Stations[index].name);
+        snprintf(current_name_buffer, 32, "• %s", Stations[current_index].name);
         text_layer_set_text(
                 s_text_layer_current_destination,
                 current_name_buffer);
 
-        update_station_info_with(index);
+        update_station_info_with(current_index);
 
         text_layer_set_text(
                 s_text_layer_next_destination,
-                Stations[(index + 1) % station_number].name);
+                Stations[(current_index + 1) % station_number].name);
 
-        if (Stations[index].distance / 1000 > 3) {
+        if (Stations[current_index].distance / 1000 > 3) {
             // If the distance is longer than 3km
             // show the distance in km.
-            snprintf(distance_buffer, 16, "%ld km", Stations[index].distance / 1000);
+            snprintf(distance_buffer, 16, "%ld km", Stations[current_index].distance / 1000);
         } else {
             // Else show it in m.
-            snprintf(distance_buffer, 16, "%ld m", Stations[index].distance);
+            snprintf(distance_buffer, 16, "%ld m", Stations[current_index].distance);
         }
         text_layer_set_text(
                 s_text_layer_distance,
