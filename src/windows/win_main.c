@@ -79,7 +79,9 @@ void update_with_index(uint32_t index) {
         return;
     }
 
-    current_index = (index % station_number);
+    current_index = ((station_number + index) % station_number);
+    // Adding the number of station because "index" is unsigned
+    // and cannot be equal to -1.
 
     DEBUG("New current index %ld", current_index);
 
