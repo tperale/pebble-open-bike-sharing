@@ -1,5 +1,6 @@
-var Station = require('./station.js').Station;
-var async = require('async');
+const Station = require('./station.js').Station;
+const async = require('async');
+const app = require('./appinfo.js');
 
 var format_distance = function (distance) {
     var result = '';
@@ -52,34 +53,74 @@ Stations.prototype.add = function (station) {
     }
 };
 
-Stations.prototype._send = function (index) {
-    if (index < Math.min(this.stations.length, 5)) {
-        var result = this.stations[index].getPlain();
+Stations.prototype._send = function (stations, index, type) {
+    if (index < Math.min(stations.length, 5)) {
+        var result = stations[index].getPlain();
+
+        if (type) {
+            result.KEY_TYPE = type;
+        } else {
+            result.KEY_TYPE = app.RESPONSE_CLOSE_STATIONS;
+        }
+
         // result.KEY_DISTANCE = format_distance(result.KEY_DISTANCE); // TODO CHANGE THIS SHIT
         result.KEY_DISTANCE = result.KEY_DISTANCE;
         result.KEY_INDEX = index;
-        result.KEY_NUMBER_OF_STATIONS = Math.min(this.stations.length, 5);
+        result.KEY_NUMBER_OF_STATIONS = Math.min(stations.length, 5);
         console.log('Sending : ' + JSON.stringify(result));
         var s = this;
         Pebble.sendAppMessage(result,
-            function(e) {
+            (e) => {
                 console.log('Station info sent to Pebble successfully in index ' + index);
-                s._send(index + 1);
+                s._send(stations, index + 1);
             },
-            function(e) {
+            (e) => {
                 console.log('Error sending API info to Pebble in index ' + index);
             }
         );
     } else {
+        Pebble.sendAppMessage({
+                KEY_TYPE : app.RESPONSE_END,
+            },
+            (e) => {
+                console.log('Station info sent to Pebble successfully in index ' + index);
+            },
+            (e) => {
+                console.log('Error sending API info to Pebble in index ' + index);
+            }
+        );
+
         return; 
     }
 
 };
 
-Stations.prototype.send = function () {
+Stations.prototype.send = function (stations, type) {
     console.log('Sending results');
 
-    this._send(0);
+    if (stations) {
+        this._send(stations, 0);
+    } else {
+        this._send(this.stations, 0, type);
+    }
+};
+
+Stations.prototype.update = function (latitude, longitude) {
+    this.latitude = latitude;
+    this.longitude = longitude;
+
+    (function (_this) {
+        async.map(_this.stations, function (item, callback) {
+            item.distanceFrom(latitude, longitude);
+            item.calcAngle(latitude, longitude);
+            callback(null, item);
+        }, function (err, results) {
+            if (err) {
+                console.log('Error updating localisation : ' + err); 
+            }
+            _this.send(results, app.GET_UPDATED_LOCATION);
+        });
+    })(this);
 };
 
 exports.Stations = Stations;
