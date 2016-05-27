@@ -1,14 +1,14 @@
-var async = require('async');
-// var app = require('./appinfo.js');
-var Stations = require('./stations.js').Stations;
+const async = require('async');
+const app = require('./appinfo.js');
+const Stations = require('./stations.js').Stations;
 
-var options = JSON.parse(localStorage.getItem('options'));
+let options = JSON.parse(localStorage.getItem('options'));
 if (!options || !options.api_address) {
     options = { api_address : 'http://api.citybik.es/v2/networks/villo' };
 }
 
-var xhrRequest = (url, type, callback) => {
-  var xhr = new XMLHttpRequest();
+const xhrRequest = (url, type, callback) => {
+  let xhr = new XMLHttpRequest();
   xhr.onload = () => {
       callback(xhr.responseText);
   };
@@ -16,22 +16,24 @@ var xhrRequest = (url, type, callback) => {
   xhr.send();
 };
 
-var get_stations = () => {
+let stations = null;
+
+const get_stations = () => {
     navigator.geolocation.getCurrentPosition(
-        function (pos) {
+        (pos) => {
             console.log('Requesting ' + options.api_address);
 
             xhrRequest(options.api_address, 'GET', 
                 (responseText) => {
-                    var json = JSON.parse(responseText);
+                    const json = JSON.parse(responseText);
 
-                    var stations = new Stations(pos.coords.latitude,
-                                                pos.coords.longitude);
+                    stations = new Stations(pos.coords.latitude,
+                                            pos.coords.longitude);
 
-                    async.map(json['network']['stations'], function (item, callback) {
+                    async.map(json['network']['stations'], (item, callback) => {
                         stations.add(item);
                         callback();
-                    }, function (err, results) {
+                    }, (err, results) => {
                         stations.send();
                     });
                 });
@@ -43,9 +45,14 @@ var get_stations = () => {
     );
 };
 
-var get_location = () => {
+const get_location = () => {
     navigator.geolocation.getCurrentPosition(
         (pos) => {
+            if (stations) {
+                stations.update(pos.coords.latitude, pos.coords.longitude);
+            } else {
+            
+            }
             return; 
         },
         (err) => {
@@ -70,10 +77,12 @@ Pebble.addEventListener('appmessage',
         console.log('RECEIVED : ' + JSON.stringify(e));
 
         switch (e.payload.KEY_COMMUNICATION) {
-            case 100: // location.
+            case app.GET_UPDATED_LOCATION:
+                console.log('Getting updated location.');
                 get_location();
                 break;
-            case 101:
+            case app.GET_STATIONS_UPDATE:
+                console.log('Getting station update.');
                 get_stations();
                 break;
         }
@@ -81,7 +90,7 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', () => {
-  var url = 'https://rawgit.com/thomacer/pebble-villo/master/config/index.html';
+  const url = 'https://rawgit.com/thomacer/pebble-villo/master/config/index.html';
 
   Pebble.openURL(url);
 });

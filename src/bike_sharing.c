@@ -3,6 +3,8 @@
 #include "./appinfo.h"
 #include "./globals.h"
 
+static void second_handler (struct tm *tick_time, TimeUnits units_changed);
+
 static void send_request (int value) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Sending request : %i", value);
     // Declare the dictionary's iterator
@@ -13,6 +15,10 @@ static void send_request (int value) {
 
     if (result == APP_MSG_OK) {
         dict_write_int(out_iter, KEY_COMMUNICATION, &value, sizeof(int), false);
+
+        // Unsubscribe the current timer to not interfer with the current
+        // long "js" job.
+        tick_timer_service_unsubscribe();
 
         result = app_message_outbox_send();
         if (result != APP_MSG_OK) {
@@ -37,24 +43,44 @@ static void inbox_dropped_callback(AppMessageResult reason, void *context) {
 }
 
 static void inbox_callback(DictionaryIterator *iterator, void *context) {
-  station_number = dict_find(iterator, KEY_NUMBER_OF_STATIONS)->value->uint32;
-  int32_t index = dict_find(iterator, KEY_INDEX)->value->int32;
+  switch (dict_find(iterator, KEY_TYPE)->value->uint32) {
+    case RESPONSE_CLOSE_STATIONS:
+      // New close stations.
+      station_number = dict_find(iterator, KEY_NUMBER_OF_STATIONS)->value->uint32;
+      int32_t index = dict_find(iterator, KEY_INDEX)->value->int32;
 
-  if (!Stations) {
-      Stations = create_stations_array(station_number);
-  } else {
-      // If the stations array has already been allocated.
-      // free_stations(Stations);
+      if (!Stations) {
+          Stations = create_stations_array(station_number);
+      } else {
+          // If the stations array has already been allocated.
+          // free_stations(Stations);
+      }
+
+      add_station_from_dict(Stations, index, iterator);
+      break;
+    case RESPONSE_UPDATED_LOCATION:
+      break;
+    case RESPONSE_UPDATED_STATIONS:
+      // update the number of bike for the currents stations
+      break;
+    case RESPONSE_END:
+      win_main_update ();
+
+      /* Reenable the tick timer to fetch new location. */
+      tick_timer_service_subscribe(SECOND_UNIT, second_handler);
+
+      break;
   }
 
-  add_station_from_dict(Stations, index, iterator);
-
-  win_main_update ();
 }
 
 static void second_handler (struct tm *tick_time, TimeUnits units_changed) {
-    // send_request(GET_LOCATION);
-    // send_request(GET_STATIONS);
+    /* if ((tick_time->tm_sec % 60) == 0) { */
+    /*     send_request(GET_STATIONS); */
+    /* } */
+    if ((tick_time->tm_sec % 5) == 0) {
+        send_request(GET_UPDATED_LOCATION);
+    }
 }
 
 int main(void) {
@@ -69,8 +95,6 @@ int main(void) {
 
   // app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
   app_message_open(1024, 1024);
-
-  tick_timer_service_subscribe(SECOND_UNIT, second_handler);
 
   app_event_loop();
   win_main_deinit();
