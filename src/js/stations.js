@@ -111,7 +111,8 @@ Stations.prototype.update = function (latitude, longitude) {
 
     (function (_this) {
         async.map(_this.stations, function (item, callback) {
-            item.distance = item.distanceFrom(latitude, longitude);
+            item.distanceFrom(latitude, longitude);
+            item.calcAngle(latitude, longitude);
             callback(null, item);
         }, function (err, results) {
             if (err) {
