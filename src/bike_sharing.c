@@ -2,6 +2,7 @@
 #include "./windows/win_main.h"
 #include "./appinfo.h"
 #include "./globals.h"
+#include "./libs/pebble-assist.h"
 
 static void second_handler (struct tm *tick_time, TimeUnits units_changed);
 
@@ -45,31 +46,54 @@ static void inbox_dropped_callback(AppMessageResult reason, void *context) {
 static void inbox_callback(DictionaryIterator *iterator, void *context) {
   switch (dict_find(iterator, KEY_TYPE)->value->uint32) {
     case RESPONSE_CLOSE_STATIONS:
-      // New close stations.
-      station_number = dict_find(iterator, KEY_NUMBER_OF_STATIONS)->value->uint32;
-      int32_t index = dict_find(iterator, KEY_INDEX)->value->int32;
+      {
+        // New close stations.
+        station_number = dict_find(iterator, KEY_NUMBER_OF_STATIONS)->value->uint32;
+        int32_t index = dict_find(iterator, KEY_INDEX)->value->int32;
 
-      if (!Stations) {
-          Stations = create_stations_array(station_number);
-      } else {
-          // If the stations array has already been allocated.
-          // free_stations(Stations);
+        if (!Stations) {
+            Stations = create_stations_array(station_number);
+        } else {
+            // If the stations array has already been allocated.
+            // free_stations(Stations);
+        }
+
+        add_station_from_dict(Stations, index, iterator);
+        break;
       }
-
-      add_station_from_dict(Stations, index, iterator);
-      break;
     case RESPONSE_UPDATED_LOCATION:
-      break;
+      {
+        uint32_t index = dict_find(iterator, KEY_INDEX)->value->uint32;
+        if (index < station_number) {
+            uint32_t distance = dict_find(iterator, KEY_DISTANCE)->value->uint32;
+            int32_t angle = dict_find(iterator, KEY_ANGLE)->value->int32;
+
+            if (Stations) {
+                Stations[index].distance = distance;
+                Stations[index].angle = angle;
+            } else {
+                WARN("Trying to update the location of a not existing station list.");
+            }
+        } else {
+            WARN("Station list is too small to insert %ld.", index);
+        }
+
+        break;
+      }
     case RESPONSE_UPDATED_STATIONS:
-      // update the number of bike for the currents stations
-      break;
+      {
+        // update the number of bike for the currents stations
+        break;
+      }
     case RESPONSE_END:
-      win_main_update ();
+      {
+        win_main_update ();
 
-      /* Reenable the tick timer to fetch new location. */
-      tick_timer_service_subscribe(SECOND_UNIT, second_handler);
+        /* Reenable the tick timer to fetch new location. */
+        tick_timer_service_subscribe(SECOND_UNIT, second_handler);
 
-      break;
+        break;
+      }
   }
 
 }
