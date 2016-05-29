@@ -15,3 +15,7 @@ It locate the nearest station from your position and provide you their informati
 npm install --dev
 make
 ```
+
+## Credits
+
+Icon made by  [EpicCoders](http://www.flaticon.com/authors/epiccoders) from www.flaticon.com 
