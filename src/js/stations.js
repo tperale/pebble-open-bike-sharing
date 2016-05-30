@@ -72,7 +72,7 @@ Stations.prototype._send = function (stations, index, type) {
         Pebble.sendAppMessage(result,
             (e) => {
                 console.log('Station info sent to Pebble successfully in index ' + index);
-                s._send(stations, index + 1);
+                s._send(stations, index + 1, type);
             },
             (e) => {
                 console.log('Error sending API info to Pebble in index ' + index);
@@ -99,7 +99,7 @@ Stations.prototype.send = function (stations, type) {
     console.log('Sending results');
 
     if (stations) {
-        this._send(stations, 0);
+        this._send(stations, 0, type);
     } else {
         this._send(this.stations, 0, type);
     }
@@ -118,7 +118,7 @@ Stations.prototype.update = function (latitude, longitude) {
             if (err) {
                 console.log('Error updating localisation : ' + err); 
             }
-            _this.send(results, app.GET_UPDATED_LOCATION);
+            _this.send(results, app.RESPONSE_UPDATED_LOCATION);
         });
     })(this);
 };
