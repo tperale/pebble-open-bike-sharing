@@ -32,12 +32,9 @@
       <div class='item-container-header'>API address.</div>
       <div class='item-container-content'>
         <label class="item">
-            Location :
-          <!-- <div class="item-input-wrapper"> -->
-            <!-- <input type="text" class="item-input" name="api_address" id='api_address' placeholder="API address"> -->
-            <select id='stationList' class"'item-select">
-            </select>
-          <!-- </div> -->
+          <div class="item-input-wrapper">
+            <input type="text" class="item-input" name="api_address" id='api_address' placeholder="API address">
+          </div>
         </label>
       </div>
       <div class='item-container-footer'>
@@ -57,7 +54,8 @@
     console.log('Submit');
 
     // Set the return URL depending on the runtime environment
-    send()
+    var return_to = getQueryParam('return_to', 'pebblejs://close#');
+    document.location = return_to + encodeURIComponent(JSON.stringify(getConfigData()));
   });
 
   // (function() {
@@ -67,5 +65,13 @@
   //     apiAddress.value = localStorage['api_address'];
   //   }
   // })();
+  (function() {
+    var apiAddress = document.getElementById('api_address');
+
+    // Load any previously saved configuration, if available
+    if(localStorage['api_address']) {
+      apiAddress.value = localStorage['api_address'];
+    }
+  })();
   </script>
 </html>

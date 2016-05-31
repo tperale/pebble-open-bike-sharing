@@ -41,11 +41,11 @@ module.exports = function(grunt) {
                         }]
                     ]
                 },
-                src: ['src/js/**/*.js',
-                    '!src/js/**/*.tpl.js',
-                    '!src/js/pebble-js-app.js',
-                ],
-                dest:'./src/js/pebble-js-app.js',                
+
+                files: {                                                         
+                    './src/js/pebble-js-app.js' : ['src/js/**/*.js', '!src/js/**/*.tpl.js', '!src/js/pebble-js-app.js'],
+                    './config/js/obs.js' : ['./config/js/dev/**/*'],
+                },
             },
         },
   });
