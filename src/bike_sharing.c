@@ -63,6 +63,7 @@ static void inbox_callback(DictionaryIterator *iterator, void *context) {
       }
     case RESPONSE_UPDATED_LOCATION:
       {
+        DEBUG("Updating the location. ");
         uint32_t index = dict_find(iterator, KEY_INDEX)->value->uint32;
         if (index < station_number) {
             uint32_t distance = dict_find(iterator, KEY_DISTANCE)->value->uint32;
