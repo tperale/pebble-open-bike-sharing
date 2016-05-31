@@ -32,9 +32,12 @@
       <div class='item-container-header'>API address.</div>
       <div class='item-container-content'>
         <label class="item">
-          <div class="item-input-wrapper">
-            <input type="text" class="item-input" name="api_address" id='api_address' placeholder="API address">
-          </div>
+            Location :
+          <!-- <div class="item-input-wrapper"> -->
+            <!-- <input type="text" class="item-input" name="api_address" id='api_address' placeholder="API address"> -->
+            <select id='stationList' class"'item-select">
+            </select>
+          <!-- </div> -->
         </label>
       </div>
       <div class='item-container-footer'>
@@ -48,16 +51,8 @@
       </div>
     </div>
   </body>
+  <script src='js/obs.js'></script>
   <script>
-  var submitButton = document.getElementById('submit_button');
-  submitButton.addEventListener('click', function() {
-    console.log('Submit');
-
-    // Set the return URL depending on the runtime environment
-    var return_to = getQueryParam('return_to', 'pebblejs://close#');
-    document.location = return_to + encodeURIComponent(JSON.stringify(getConfigData()));
-  });
-
   // (function() {
   //   var apiAddress = document.getElementById('api_address');
   //   // Load any previously saved configuration, if available
@@ -65,13 +60,5 @@
   //     apiAddress.value = localStorage['api_address'];
   //   }
   // })();
-  (function() {
-    var apiAddress = document.getElementById('api_address');
-
-    // Load any previously saved configuration, if available
-    if(localStorage['api_address']) {
-      apiAddress.value = localStorage['api_address'];
-    }
-  })();
   </script>
 </html>
