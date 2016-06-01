@@ -94,10 +94,23 @@ var sortByName = function sortByName(a, b) {
     }
 };
 
+var populate = function populate(select, option, results) {
+    results.sort(sortByName);
+
+    for (var i = 0; i < results.length; ++i) {
+        option = document.createElement('option');
+        option.appendChild(document.createTextNode(results[i].name));
+        option.value = results[i].url;
+        select.add(option);
+    }
+};
+
 module.exports = {
     calc_distance: calc_distance,
 
     sortByName: sortByName,
+
+    populate: populate,
 
     find_closest: function find_closest() {
         var results = [];
@@ -154,42 +167,37 @@ module.exports = {
             // };
             // xhr.send();
 
-            for (var _i = 0; _i < data['networks'].length; ++_i) {
-                var dist = calc_distance(data['networks'][_i]['location']['latitude'], data['networks'][_i]['location']['longitude'], pos.coords.latitude, pos.coords.longitude);
+            for (var i = 0; i < data['networks'].length; ++i) {
+                var dist = calc_distance(data['networks'][i]['location']['latitude'], data['networks'][i]['location']['longitude'], pos.coords.latitude, pos.coords.longitude);
                 if (dist < min) {
                     min = dist;
                     minObj = {
-                        'name': data['networks'][_i]['name'],
-                        'url': 'http://api.citybik.es/' + data['networks'][_i]['href']
+                        'name': data['networks'][i]['name'],
+                        'url': 'http://api.citybik.es/' + data['networks'][i]['href']
                     };
                 }
 
                 results.push({
-                    'name': data['networks'][_i]['name'],
-                    'url': 'http://api.citybik.es/' + data['networks'][_i]['href']
+                    'name': data['networks'][i]['name'],
+                    'url': 'http://api.citybik.es/' + data['networks'][i]['href']
                 });
             }
 
             console.log('Min is ' + JSON.stringify(minObj));
 
-            results.sort(sortByName);
-
             var select = document.getElementById('stationList');
-
             var option = document.createElement('option');
-            option.appendChild(document.createTextNode(minObj.name));
+            option.innerText = minObj.name;
             option.value = minObj.url;
-            select.add(option);
-
-            for (var i = 0; i < results.length; ++i) {
-                option = document.createElement('option');
-                option.appendChild(document.createTextNode(results[i].name));
-                option.value = results[i].url;
-                select.add(option);
-            }
+            option.selected = true;
+            select.insertBefore(option, select.options[0]);
         }, function (err) {
             console.log(err);
         });
+
+        var select = document.getElementById('stationList');
+        var option = document.createElement('option');
+        populate(select, option, data.networks);
     }
 };
 

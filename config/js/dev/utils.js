@@ -29,10 +29,23 @@ let sortByName = (a, b) => {
     }
 };
 
+let populate = (select, option, results) => {
+    results.sort(sortByName);
+
+    for (var i = 0; i < results.length; ++i) {
+        option = document.createElement('option');
+        option.appendChild( document.createTextNode(results[i].name) );
+        option.value = results[i].url;
+        select.add(option);
+    }
+};
+
 module.exports = {
     calc_distance : calc_distance,
         
     sortByName : sortByName,
+
+    populate : populate,
 
     find_closest : () => {
         let results = [];
@@ -110,23 +123,18 @@ module.exports = {
 
             console.log('Min is ' + JSON.stringify(minObj));
 
-            results.sort(sortByName);
-
             let select = document.getElementById('stationList');
-
             let option = document.createElement('option');
-            option.appendChild( document.createTextNode(minObj.name) );
+            option.innerText = minObj.name;
             option.value = minObj.url;
-            select.add(option);
-
-            for (var i = 0; i < results.length; ++i) {
-                option = document.createElement('option');
-                option.appendChild( document.createTextNode(results[i].name) );
-                option.value = results[i].url;
-                select.add(option);
-            }
+            option.selected = true;
+            select.insertBefore(option, select.options[0]);
         }, function (err) {
             console.log(err);
         });
+
+        let select = document.getElementById('stationList');
+        let option = document.createElement('option');
+        populate(select, option, data.networks);
     },
 };
