@@ -20,74 +20,77 @@
  *          "timestamp": "2016-05-21T18:57:11.225000Z"
  *      }, 
  */
-var Station = function (obj) {
-    this.name = obj.name;
-    this.empty_slots = obj.empty_slots;
-    this.free_bikes = obj.free_bikes;
-    this.latitude = obj.latitude;
-    this.longitude = obj.longitude;
-    this.distance = null;
-    this.angle = null;
-};
+class Station {
+    constructor (obj) {
+        this.name = obj.name;
+        this.empty_slots = obj.empty_slots;
+        this.free_bikes = obj.free_bikes;
+        this.latitude = obj.latitude;
+        this.longitude = obj.longitude;
+        this.distance = null;
+        this.angle = null;
+    }
 
-/* @desc : Transform the object into a formated JSON to send to the Pebble.
- */
-Station.prototype.getPlain = function () {
-    return {
-        KEY_NAME : this.name,
-        KEY_DISTANCE : this.distance,
-        KEY_ANGLE : this.angle,
-        KEY_FREE_BIKE : this.free_bikes,
-        KEY_PARKINGS : this.empty_slots,
-    };
-};
+    /* @desc : Transform the object into a formated JSON to send to the Pebble.
+     */
+    getPlain () {
+        return {
+            KEY_NAME : this.name,
+            KEY_DISTANCE : this.distance,
+            KEY_ANGLE : this.angle,
+            KEY_FREE_BIKE : this.free_bikes,
+            KEY_PARKINGS : this.empty_slots,
+        };
+    }
 
-/* @desc : Calculate the distance of the station from the geolocalisation
- *
- * @param {latitude} : Geoloc. latitude.
- * @param {longitude} : Geoloc. longitude.
- *
- * @return {Number} : Distance in kilometers.
- */
-Station.prototype.distanceFrom = function (latitude, longitude) {
-    var unit = 'K';
-    
-    var radlat1 = Math.PI * this.latitude / 180;
-    var radlat2 = Math.PI * latitude / 180;
-    var radlon1 = Math.PI * this.longitude / 180;
-    var radlon2 = Math.PI * longitude / 180;
+    /* @desc : Calculate the distance of the station from the geolocalisation
+     *
+     * @param {latitude} : Geoloc. latitude.
+     * @param {longitude} : Geoloc. longitude.
+     *
+     * @return {Number} : Distance in kilometers.
+     */
+    distanceFrom (latitude, longitude) {
+        var unit = 'K';
+        
+        const radlat1 = Math.PI * this.latitude / 180;
+        const radlat2 = Math.PI * latitude / 180;
 
-    var theta = this.longitude - longitude;
-    var radtheta = ( Math.PI * theta ) / 180;
+        const radlon1 = Math.PI * this.longitude / 180;
+        const radlon2 = Math.PI * longitude / 180;
 
-    var dist = ( Math.sin(radlat1) * Math.sin(radlat2) ) + ( Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta) );
-    dist = Math.acos(dist);
-    dist = dist * 180 / Math.PI;
-    dist = dist * 60 * 1.1515;
+        const theta = this.longitude - longitude;
+        const radtheta = ( Math.PI * theta ) / 180;
 
-    if (unit=='K') { dist = dist * 1.609344; }
-    if (unit=='N') { dist = dist * 0.8684; }
+        let dist = ( Math.sin(radlat1) * Math.sin(radlat2) ) + ( Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta) );
+        dist = Math.acos(dist);
+        dist = dist * 180 / Math.PI;
+        dist = dist * 60 * 1.1515;
 
-    this.distance = dist * 1000;
-    // Converting in meters TOCHANGE for miles.
+        if (unit=='K') { dist = dist * 1.609344; }
+        if (unit=='N') { dist = dist * 0.8684; }
 
-    return dist;
-};
+        this.distance = dist * 1000;
+        // Converting in meters TOCHANGE for miles.
 
-/* @desc : Calculate the offset angle from the north.
- *
- * @param {latitude} : Geoloc. latitude.
- * @param {longitude} : Geoloc. longitude.
- *
- * @return {Number} : Angle in degree.
- */
-Station.prototype.calcAngle = function (latitude, longitude) {
-    var delta_lat = latitude - this.latitude;
-    var delta_long = longitude - this.longitude;
+        return dist;
+    }
 
-    this.angle = (Math.atan(delta_long / delta_lat)) * 180 / Math.PI;
+    /* @desc : Calculate the offset angle from the north.
+     *
+     * @param {latitude} : Geoloc. latitude.
+     * @param {longitude} : Geoloc. longitude.
+     *
+     * @return {Number} : Angle in degree.
+     */
+    calcAngle (latitude, longitude) {
+        const delta_lat = latitude - this.latitude;
+        const delta_long = longitude - this.longitude;
 
-    return this.angle;
-};
+        this.angle = (Math.atan(delta_long / delta_lat)) * 180 / Math.PI;
+
+        return this.angle;
+    }
+}
 
 exports.Station = Station;
