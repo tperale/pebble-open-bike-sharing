@@ -45,7 +45,7 @@ const find_closest_stations = () => {
     ], (err, results) => {
         if (err) {
             console.log(err);
-            // TODO Show error to Pebble
+            Pebble.showSimpleNotificationOnPebble('Error', err);
             return;
         }
 
@@ -101,7 +101,7 @@ const find_closest_network = () => {
     ], (err, results) => {
         if (err) {
             console.log(err);
-            // TODO Show error to Pebble
+            Pebble.showSimpleNotificationOnPebble('Error', err);
             return;
         }
         let min = {
@@ -120,6 +120,7 @@ const find_closest_network = () => {
         }, (err, results) => {
             if (err) {
                 console.log(err);            
+                Pebble.showSimpleNotificationOnPebble('Error', err);
                 return;
             }
             console.log('The closest network is : ' + min.name + ' and href=' + min.href);
@@ -144,6 +145,7 @@ const get_location = () => {
         },
         (err) => {
             console.log('Error requesting location : ' + err);
+            Pebble.showSimpleNotificationOnPebble('Error', err);
         },
         {timeout: 15000, maximumAge: 60000}
     );
