@@ -28,9 +28,9 @@ void update_station_info_with(uint32_t index) {
     uint32_t empty_slots = Stations[index].empty_slots;
     snprintf(parkings_slots_buffer, 8, "%ld", empty_slots);
     if (empty_slots) {
-        text_layer_set_background_color(s_text_layer_parking, GColorWhite);
+        text_layer_set_background_color(s_text_layer_free_bike, COLOR_FALLBACK(GColorChromeYellow, GColorClear));
     } else {
-        text_layer_set_background_color(s_text_layer_parking, GColorLightGray);
+        text_layer_set_background_color(s_text_layer_parking, COLOR_FALLBACK(GColorRed, GColorLightGray));
     }
     text_layer_set_text(
             s_text_layer_parking,
@@ -50,13 +50,14 @@ void create_station_info(Layer* window_layer, GRect bounds) {
     /* ICON : */
     s_bicycle_bitmap_layer = bitmap_layer_create(GRect(0, (2 * bounds.size.h) / 8, bounds.size.w / 4, bounds.size.h / 8));
     s_bicycle_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BICYCLE_BITMAP);
+
     bitmap_layer_set_bitmap(s_bicycle_bitmap_layer, s_bicycle_bitmap);
     layer_add_child(window_layer, bitmap_layer_get_layer(s_bicycle_bitmap_layer));
     /* TEXT : */
     s_text_layer_free_bike = text_layer_create(GRect(bounds.size.w / 4, (2 * bounds.size.h) / 8, bounds.size.w / 4, bounds.size.h / 8));
     text_layer_set_font(s_text_layer_free_bike, s_font);
     text_layer_set_text_alignment(s_text_layer_free_bike, GTextAlignmentCenter);
-    text_layer_set_background_color(s_text_layer_free_bike, GColorClear);
+    text_layer_set_background_color(s_text_layer_free_bike, COLOR_FALLBACK(GColorChromeYellow, GColorClear));
     layer_add_child(window_layer, text_layer_get_layer(s_text_layer_free_bike));
 
     /* NUMBER OF PARKING SLOTS */
@@ -69,6 +70,6 @@ void create_station_info(Layer* window_layer, GRect bounds) {
     s_text_layer_parking = text_layer_create(GRect((3 * bounds.size.w) / 4, (2 * bounds.size.h) / 8, bounds.size.w / 4, bounds.size.h / 8));
     text_layer_set_font(s_text_layer_parking, s_font);
     text_layer_set_text_alignment(s_text_layer_parking, GTextAlignmentCenter);
-    text_layer_set_background_color(s_text_layer_parking, GColorClear);
+    text_layer_set_background_color(s_text_layer_parking, COLOR_FALLBACK(GColorChromeYellow, GColorClear));
     layer_add_child(window_layer, text_layer_get_layer(s_text_layer_parking));
 }
