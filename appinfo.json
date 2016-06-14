@@ -37,7 +37,8 @@
                 "name": "BICYCLE_BITMAP",
                 "targetPlatforms": [
                     "aplite",
-                    "basalt"
+                    "basalt",
+                    "chalk"
                 ],
                 "type": "bitmap"
             },
@@ -46,7 +47,8 @@
                 "name": "PARKING_BITMAP",
                 "targetPlatforms": [
                     "aplite",
-                    "basalt"
+                    "basalt",
+                    "chalk"
                 ],
                 "type": "bitmap"
             }
@@ -56,7 +58,8 @@
     "shortName": "Open Bike Sharing",
     "targetPlatforms": [
         "aplite",
-        "basalt"
+        "basalt",
+        "chalk"
     ],
     "uuid": "a2d33e61-7bd5-4222-8187-5de924c2ff62",
     "versionLabel": "2.1",

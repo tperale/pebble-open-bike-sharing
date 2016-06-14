@@ -18,7 +18,7 @@ static void update_parking_layer (Layer *layer, GContext *ctx) {
     graphics_context_set_compositing_mode(ctx, GCompOpSet);
     graphics_context_set_antialiased(ctx, true);
     /* graphics_draw_bitmap_in_rect(ctx, s_parking_bitmap, gbitmap_get_bounds(s_parking_bitmap)); */
-    graphics_draw_bitmap_in_rect(ctx, s_parking_bitmap, GRect(bounds.size.w / 2, (2 * bounds.size.h) / 8, bounds.size.w / 4, bounds.size.h / 8));
+    graphics_draw_bitmap_centered(ctx, s_parking_bitmap, GRect(bounds.size.w / 2, (2 * bounds.size.h) / 8, bounds.size.w / 4, bounds.size.h / 8));
 }
 
 static void update_bicycle_layer (Layer *layer, GContext *ctx) {
@@ -26,7 +26,7 @@ static void update_bicycle_layer (Layer *layer, GContext *ctx) {
     graphics_context_set_compositing_mode(ctx, GCompOpSet);
     graphics_context_set_antialiased(ctx, true);
     /* graphics_draw_bitmap_in_rect(ctx, s_bicycle_bitmap, gbitmap_get_bounds(s_bicycle_bitmap)); */
-    graphics_draw_bitmap_in_rect(ctx, s_bicycle_bitmap, GRect(0, (2 * bounds.size.h) / 8, bounds.size.w / 4, bounds.size.h / 8));
+    graphics_draw_bitmap_centered(ctx, s_bicycle_bitmap, GRect(0, (2 * bounds.size.h) / 8, bounds.size.w / 4, bounds.size.h / 8));
 }
 
 void update_station_info_with(uint32_t index) {
