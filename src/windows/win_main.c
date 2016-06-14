@@ -42,27 +42,43 @@ static void window_load(Window *window) {
     create_compass(window_layer, bounds);
 
     /* Setting up the layer to write the current destination. */
+    #if defined(PBL_ROUND)
     s_text_layer_current_destination = text_layer_create(GRect(0, STATUS_BAR_LAYER_HEIGHT, bounds.size.w, bounds.size.h / 8));
+    text_layer_set_text_alignment(s_text_layer_current_destination , GTextAlignmentCenter);
+    #else
+    s_text_layer_current_destination = text_layer_create(GRect(0, STATUS_BAR_LAYER_HEIGHT, bounds.size.w, bounds.size.h / 8));
+    text_layer_set_text_alignment(s_text_layer_current_destination , GTextAlignmentLeft);
+    #endif
     text_layer_set_text_alignment(s_text_layer_current_destination, GTextAlignmentLeft);
     text_layer_set_background_color(s_text_layer_current_destination, GColorBlack);
-    text_layer_set_text_color(s_text_layer_current_destination, GColorClear);
+    text_layer_set_text_color(s_text_layer_current_destination, GColorWhite);
     layer_add_child(window_layer, text_layer_get_layer(s_text_layer_current_destination));
 
     create_station_info(window_layer, bounds);
 
     /* DISTANCE LAYER */
+    #if defined(PBL_ROUND)
+    s_text_layer_distance = text_layer_create(GRect(bounds.size.w / 4, (5 * bounds.size.h) / 8, bounds.size.w / 2, bounds.size.h / 8));
+    text_layer_set_text_alignment(s_text_layer_distance, GTextAlignmentCenter);
+    #else
     s_text_layer_distance = text_layer_create(GRect(0, (6 * bounds.size.h) / 8, bounds.size.w / 2, bounds.size.h / 4));
     text_layer_set_text_alignment(s_text_layer_distance, GTextAlignmentLeft);
-    text_layer_set_background_color(s_text_layer_distance, GColorClear);
     GFont s_font = fonts_get_system_font(FONT_KEY_ROBOTO_CONDENSED_21);
     text_layer_set_font(s_text_layer_distance, s_font);
+    #endif
+    text_layer_set_background_color(s_text_layer_distance, GColorClear);
     layer_add_child(window_layer, text_layer_get_layer(s_text_layer_distance));
 
     /* Setting up the layer to write the next destination. */
-    s_text_layer_next_destination = text_layer_create(GRect(0, (7 * bounds.size.h) / 8, bounds.size.w, bounds.size.h));
+    #if defined(PBL_ROUND)
+    s_text_layer_next_destination = text_layer_create(GRect(0, (6 * bounds.size.h) / 8, bounds.size.w, bounds.size.h / 4));
+    text_layer_set_text_alignment(s_text_layer_next_destination, GTextAlignmentCenter);
+    #else
+    s_text_layer_next_destination = text_layer_create(GRect(0, (7 * bounds.size.h) / 8, bounds.size.w, bounds.size.h / 8));
     text_layer_set_text_alignment(s_text_layer_next_destination, GTextAlignmentLeft);
+    #endif
     text_layer_set_background_color(s_text_layer_next_destination, GColorBlack);
-    text_layer_set_text_color(s_text_layer_next_destination, GColorClear);
+    text_layer_set_text_color(s_text_layer_next_destination, GColorWhite);
     layer_add_child(window_layer, text_layer_get_layer(s_text_layer_next_destination));
 
     window_set_click_config_provider(window, click_config);
@@ -115,6 +131,7 @@ void update_with_index(uint32_t index) {
 
 void win_main_init (void) {
     window = window_create();
+    window_set_background_color(window, COLOR_FALLBACK(GColorChromeYellow, GColorClear));
     window_set_window_handlers(window, (WindowHandlers) {
         .load = window_load,
         .unload = window_unload,

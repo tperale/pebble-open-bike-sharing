@@ -28,7 +28,7 @@ static GRect bounds = {};
 static void direction_handler (CompassHeadingData heading_data) {
     double tmp = 0;
     if (Stations) {
-        double tmp = ((double) TRIG_MAX_ANGLE) * ((double) Stations[current_index].angle / 360);
+        double tmp = ((double) TRIG_MAX_ANGLE) * ((double) Stations[current_index].angle) / 360;
         LOG("COMPASS redraw : %ld and angle %ld (%lf)", heading_data.magnetic_heading, Stations[current_index].angle, tmp);
     }
     gpath_rotate_to(s_arrow, heading_data.magnetic_heading + (int) tmp);
