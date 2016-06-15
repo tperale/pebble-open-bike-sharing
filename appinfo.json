@@ -34,12 +34,6 @@
         "media": [
             {
                 "menuIcon": true,
-                "type": "png",
-                "file": "images/logo.png",
-                "name": "MENU_ICON"
-            },
-
-            {
                 "file": "images/bicycle.png",
                 "name": "BICYCLE_BITMAP",
                 "targetPlatforms": [
