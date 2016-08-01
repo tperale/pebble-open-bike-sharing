@@ -133,7 +133,10 @@ void update_with_index(uint32_t index) {
 void win_main_init (void) {
     font_init();
     window = window_create();
-    window_set_background_color(window, COLOR_FALLBACK(GColorChromeYellow, GColorClear));
+
+    #ifdef PBL_COLOR
+    window_set_background_color(window, GColorChromeYellow);
+    #endif
     window_set_window_handlers(window, (WindowHandlers) {
         .load = window_load,
         .unload = window_unload,
