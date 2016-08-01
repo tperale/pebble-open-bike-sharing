@@ -47,8 +47,7 @@ static void window_load(Window *window) {
     text_layer_set_background_color(s_text_layer_current_destination, GColorBlack);
     text_layer_set_text_color(s_text_layer_current_destination, GColorWhite);
     #ifdef PBL_ROUND
-    GFont s_font_current_destination = fonts_get_system_font(FONT_KEY_GOTHIC_14);
-    text_layer_set_font(s_text_layer_current_destination, s_font_current_destination);
+    text_layer_set_font(s_text_layer_current_destination, GOTHIC_14);
     text_layer_enable_screen_text_flow_and_paging(s_text_layer_current_destination, 2);
     #endif
     layer_add_child(window_layer, text_layer_get_layer(s_text_layer_current_destination));
@@ -61,8 +60,7 @@ static void window_load(Window *window) {
                 GRect(bounds.size.w / 4, (5 * bounds.size.h) / 8, bounds.size.w / 2, bounds.size.h / 8)
     ));
     #ifndef PBL_ROUND
-    GFont s_font = fonts_get_system_font(FONT_KEY_ROBOTO_CONDENSED_21);
-    text_layer_set_font(s_text_layer_distance, s_font);
+    text_layer_set_font(s_text_layer_distance, ROBOTO_21);
     #endif
     text_layer_set_text_alignment(s_text_layer_distance, PBL_IF_RECT_ELSE(GTextAlignmentLeft, GTextAlignmentCenter));
     text_layer_set_background_color(s_text_layer_distance, GColorClear);
@@ -103,35 +101,37 @@ void update_with_index(uint32_t index) {
 
     DEBUG("New current index %ld", current_index);
 
-    if (Stations) {
-        snprintf(current_name_buffer, 32, "• %s", Stations[current_index].name);
-        text_layer_set_text(
-                s_text_layer_current_destination,
-                current_name_buffer);
-
-        update_station_info_with(current_index);
-
-        text_layer_set_text(
-                s_text_layer_next_destination,
-                Stations[(current_index + 1) % station_number].name);
-
-        if (Stations[current_index].distance / 1000 > 3) {
-            // If the distance is longer than 3km
-            // show the distance in km.
-            snprintf(distance_buffer, 16, "%ld km", Stations[current_index].distance / 1000);
-        } else {
-            // Else show it in m.
-            snprintf(distance_buffer, 16, "%ld m", Stations[current_index].distance);
-        }
-        text_layer_set_text(
-                s_text_layer_distance,
-                distance_buffer);
-    } else {
+    if (!Stations) {
         WARN("Trying to update layer without any 'Stations'");
+        return;
     }
+
+    snprintf(current_name_buffer, 32, "• %s", Stations[current_index].name);
+    text_layer_set_text(
+            s_text_layer_current_destination,
+            current_name_buffer);
+
+    update_station_info_with(current_index);
+
+    text_layer_set_text(
+            s_text_layer_next_destination,
+            Stations[(current_index + 1) % station_number].name);
+
+    if (Stations[current_index].distance / 1000 > 3) {
+        // If the distance is longer than 3km
+        // show the distance in km.
+        snprintf(distance_buffer, 16, "%ld km", Stations[current_index].distance / 1000);
+    } else {
+        // Else show it in m.
+        snprintf(distance_buffer, 16, "%ld m", Stations[current_index].distance);
+    }
+    text_layer_set_text(
+            s_text_layer_distance,
+            distance_buffer);
 }
 
 void win_main_init (void) {
+    font_init();
     window = window_create();
     window_set_background_color(window, COLOR_FALLBACK(GColorChromeYellow, GColorClear));
     window_set_window_handlers(window, (WindowHandlers) {

@@ -2,6 +2,8 @@
 #define _WIN_MAIN_H
 
 #include <pebble.h>
+#include "../fonts.h"
+#include "../libs/functionnal.h"
 
 void win_main_init(void);
 void win_main_update_with_index (uint32_t);
