@@ -56,7 +56,8 @@ module.exports = {
     getQueryParam: getQueryParam,
     send: function send() {
         var return_to = getQueryParam('return_to', 'pebblejs://close#');
-        document.location = return_to + encodeURIComponent(JSON.stringify(getConfigData()));
+        getConfigData();
+        // document.location = return_to + encodeURIComponent(JSON.stringify(getConfigData()));
     }
 };
 
