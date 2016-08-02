@@ -53,6 +53,7 @@ void station_info_init (Layer* window_layer, GRect bounds) {
     s_bicycle_bitmap_layer = bitmap_layer_create(GRect(0, (2 * bounds.size.h) / 8, bounds.size.w / 4, bounds.size.h / 8));
     s_bicycle_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BICYCLE_BITMAP);
     bitmap_layer_set_bitmap(s_bicycle_bitmap_layer, s_bicycle_bitmap);
+    bitmap_layer_set_compositing_mode(s_bicycle_bitmap_layer, GCompOpSet);
     bitmap_layer_set_alignment(s_bicycle_bitmap_layer, GAlignCenter);
     layer_add_child(window_layer, bitmap_layer_get_layer(s_bicycle_bitmap_layer));
     /* TEXT : */
