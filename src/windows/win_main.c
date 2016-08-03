@@ -128,6 +128,8 @@ void update_with_index(uint32_t index) {
     text_layer_set_text(
             s_text_layer_distance,
             distance_buffer);
+
+    update_compass();
 }
 
 void win_main_init (void) {

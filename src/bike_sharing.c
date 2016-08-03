@@ -4,7 +4,7 @@
 #include "./globals.h"
 #include "./libs/pebble-assist.h"
 
-static void second_handler (struct tm *tick_time, TimeUnits units_changed);
+/* static void second_handler (struct tm *tick_time, TimeUnits units_changed); */
 
 static void send_request (int value) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Sending request : %i", value);
@@ -91,7 +91,7 @@ static void inbox_callback(DictionaryIterator *iterator, void *context) {
         win_main_update ();
 
         /* Reenable the tick timer to fetch new location. */
-        tick_timer_service_subscribe(SECOND_UNIT, second_handler);
+        /* tick_timer_service_subscribe(SECOND_UNIT, second_handler); */
 
         break;
       }
@@ -99,14 +99,14 @@ static void inbox_callback(DictionaryIterator *iterator, void *context) {
 
 }
 
-static void second_handler (struct tm *tick_time, TimeUnits units_changed) {
-    /* if ((tick_time->tm_sec % 60) == 0) { */
-    /*     send_request(GET_STATIONS); */
-    /* } */
-    if ((tick_time->tm_sec % 5) == 0) {
-        send_request(GET_UPDATED_LOCATION);
-    }
-}
+/* static void second_handler (struct tm *tick_time, TimeUnits units_changed) { */
+/*     /1* if ((tick_time->tm_sec % 60) == 0) { *1/ */
+/*     /1*     send_request(GET_STATIONS); *1/ */
+/*     /1* } *1/ */
+/*     if ((tick_time->tm_sec % 5) == 0) { */
+/*         send_request(GET_UPDATED_LOCATION); */
+/*     } */
+/* } */
 
 int main(void) {
   win_main_init();
