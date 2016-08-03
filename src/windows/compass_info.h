@@ -4,7 +4,7 @@
 
 #include "./win_compass_calibration.h"
 #include "../globals.h"
-#include "../libs/compass.h"
+#include "../libs/pebble-services.h"
 #include "../libs/functionnal.h"
 #include "../libs/pebble-assist.h"
 
