@@ -1,4 +1,4 @@
-#include "compass.h"
+#include "pebble-services.h"
 
 static EasyData* data;
 

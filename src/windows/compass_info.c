@@ -1,7 +1,5 @@
 #include "compass_info.h"
 
-EasyData* compass_data = NULL;
-
 static const GPathInfo INDICATION_ARROW = {
     4,
     (GPoint[]) {
@@ -11,6 +9,10 @@ static const GPathInfo INDICATION_ARROW = {
         { 0, -28 }
     }
 };
+
+EasyData* compass_data = NULL;
+
+static int32_t current_station_angle = 0;
 
 static CompassCalibrationWindow* calibration_window = NULL;
 
@@ -27,22 +29,14 @@ static void heading_data_handler (EasyData* data) {
     calibration_window = NULL;
   }
 
-  int32_t current_angle = 0;
-  if (Stations) {
-    int32_t current_station_angle = DEG_TO_TRIGANGLE(Stations[current_index].angle);
-    current_angle = (data->angle + current_station_angle);
-    LOG("NEEDLE redraw : \n - angle %ld\n - station_angle %ld\n - result %ld\n - degree %ld",
-        data->angle,
-        current_station_angle,
-        current_angle,
-        TRIGANGLE_TO_DEG(current_angle)
-    );
-  } else {
-    current_angle = data->angle;
-    LOG("NEEDLE redraw : \n - angle %ld\n - degree %ld", current_angle,
-        TRIGANGLE_TO_DEG(current_angle)
-    );
-  }
+  int32_t current_angle = (data->angle + current_station_angle);
+
+  LOG("NEEDLE redraw : \n - angle %ld\n - station_angle %ld\n - result %ld\n - degree %ld",
+      data->angle,
+      current_station_angle,
+      current_angle,
+      TRIGANGLE_TO_DEG(current_angle)
+  );
 
   gpath_rotate_to(s_arrow, current_angle);
   layer_mark_dirty(s_direction_layer);
@@ -81,44 +75,38 @@ static void draw_needle () {
     layer_add_child(window_layer, s_direction_layer);
 }
 
-void update_compass () {
+void update_compass_with (int32_t angle) {
+  current_station_angle = angle;
   if (compass_data) {
     heading_data_handler(compass_data);
   }
 }
 
 void create_compass(Layer* win_layer, GRect b) {
-    window_layer = win_layer;
-    bounds = b;
+  window_layer = win_layer;
+  bounds = b;
 
-    /* s_text_layer_calib_state = text_layer_create(GRect(bounds.size.w / 2, (5 * bounds.size.h) / 8, bounds.size.w / 2, bounds.size.h / 4)); */
-    draw_needle();
+  draw_needle();
 
-    compass_data = setup_compass (
-            heading_data_handler,
-            draw_calibration,
-            draw_calibration
-    );
+  compass_data = setup_compass (
+      heading_data_handler,
+      draw_calibration,
+      draw_calibration
+  );
 }
 
 /* @desc : Code to destroy the compasas.
  */
 void destroy_compass() {
-    window_layer = NULL;
+  window_layer = NULL;
 
-    compass_service_unsubscribe();
+  compass_service_unsubscribe();
 
-    gpath_destroy(s_arrow);
-    s_arrow = NULL;
+  gpath_destroy(s_arrow);
+  s_arrow = NULL;
 
-    layer_destroy(s_direction_layer);
-    s_direction_layer = NULL;
-
-    /* if (s_text_layer_calib_state != NULL) { */
-        // s_text_layer_calib_state can be not initialized
-        // if the compass is already calibrated.
-        /* text_layer_destroy(s_text_layer_calib_state); */
-    /* } */
+  layer_destroy(s_direction_layer);
+  s_direction_layer = NULL;
 }
 
 

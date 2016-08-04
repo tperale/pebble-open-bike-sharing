@@ -19,7 +19,7 @@ static void send_request (int value) {
 
     // Unsubscribe the current timer to not interfer with the current
     // long "js" job.
-    tick_timer_service_unsubscribe();
+    /* tick_timer_service_unsubscribe(); */
 
     result = app_message_outbox_send();
     if (result != APP_MSG_OK) {
@@ -46,41 +46,38 @@ static void inbox_dropped_callback(AppMessageResult reason, void *context) {
 static void inbox_callback(DictionaryIterator *iterator, void *context) {
   switch (dict_find(iterator, KEY_TYPE)->value->uint32) {
     case RESPONSE_CLOSE_STATIONS: {
-      // New close stations.
-      station_number = dict_find(iterator, KEY_NUMBER_OF_STATIONS)->value->uint32;
-      int32_t index = dict_find(iterator, KEY_INDEX)->value->int32;
-
-      if (!Stations) {
-        Stations = create_stations_array(station_number);
+      if (!stations) {
+        // New close stations.
+        uint32_t number = dict_find(iterator, KEY_NUMBER_OF_STATIONS)->value->uint32;
+        stations = Stations_new(number);
       } else {
         // If the stations array has already been allocated.
         // free_stations(Stations);
       }
 
-      add_station_from_dict(Stations, index, iterator);
+      stations->add(stations, Station_new(
+          dict_find(iterator, KEY_NAME)->value->cstring,
+          dict_find(iterator, KEY_PARKINGS)->value->uint32,
+          dict_find(iterator, KEY_FREE_BIKE)->value->uint32,
+          dict_find(iterator, KEY_DISTANCE)->value->uint32,
+          dict_find(iterator, KEY_ANGLE)->value->uint32
+      ));
       break;
     }
+    case RESPONSE_UPDATED_STATIONS:
     case RESPONSE_UPDATED_LOCATION: {
       DEBUG("Updating the location. ");
-      uint32_t index = dict_find(iterator, KEY_INDEX)->value->uint32;
-      if (index < station_number) {
-        uint32_t distance = dict_find(iterator, KEY_DISTANCE)->value->uint32;
-        int32_t angle = dict_find(iterator, KEY_ANGLE)->value->int32;
 
-        if (Stations) {
-          Stations[index].distance = distance;
-          Stations[index].angle = angle;
-        } else {
-          WARN("Trying to update the location of a not existing station list.");
-        }
-      } else {
-        WARN("Station list is too small to insert %ld.", index);
-      }
+      stations->update(stations, Station_new (
+        dict_find(iterator, KEY_NAME)->value->cstring,
+        dict_find(iterator, KEY_PARKINGS)->value->uint32,
+        dict_find(iterator, KEY_FREE_BIKE)->value->uint32,
+        dict_find(iterator, KEY_DISTANCE)->value->uint32,
+        dict_find(iterator, KEY_ANGLE)->value->uint32
+      ));
 
-      break;
-    }
-    case RESPONSE_UPDATED_STATIONS: {
-      // update the number of bike for the currents stations
+      // TODO No update if the current station is no longer in the array.
+
       break;
     }
     case RESPONSE_END: {
