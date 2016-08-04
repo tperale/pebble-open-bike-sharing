@@ -1,4 +1,4 @@
-#include "compass_info.h"
+#include "sensors_info.h"
 
 static const GPathInfo INDICATION_ARROW = {
     4,

@@ -1,11 +1,5 @@
 #include "win_main.h"
 
-#include "station_info.h"
-#include "compass_info.h"
-
-#include "../globals.h"
-#include "../libs/pebble-assist.h"
-
 static Window* window;
 
 static StatusBarLayer* status_bar;
@@ -17,8 +11,6 @@ static char current_name_buffer[32];
 static TextLayer* s_text_layer_current_destination;
 static char next_name_buffer[32];
 static TextLayer* s_text_layer_next_destination;
-
-void update_with_index(uint32_t index);
 
 static void click_config () {
   window_single_click_subscribe(BUTTON_ID_UP, lambda(void, () {
