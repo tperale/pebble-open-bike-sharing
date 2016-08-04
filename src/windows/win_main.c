@@ -37,7 +37,7 @@ static void window_load(Window *window) {
   layer_set_frame(status_bar_layer_get_layer(status_bar), frame);
   layer_add_child(window_layer, status_bar_layer_get_layer(status_bar));
 
-  create_compass(window_layer, bounds);
+  create_sensors(window_layer, bounds);
 
   /* Setting up the layer to write the current destination. */
   s_text_layer_current_destination = text_layer_create(GRect(0, STATUS_BAR_LAYER_HEIGHT, bounds.size.w, bounds.size.h / 8));
@@ -84,7 +84,7 @@ static void window_load(Window *window) {
 
 static void window_unload(Window *window) {
     station_info_deinit();
-    destroy_compass();
+    destroy_sensors();
 }
 
 void win_main_update() {
@@ -131,7 +131,7 @@ void win_main_update() {
 
   /* Compass info, only need the angle of the station.
    */
-  update_compass_with(current_station->angle);
+  update_sensors_with(current_station->angle);
 
   /* Update the name of the next station.
    */

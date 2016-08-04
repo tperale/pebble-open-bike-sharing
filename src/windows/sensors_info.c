@@ -10,7 +10,7 @@ static const GPathInfo INDICATION_ARROW = {
     }
 };
 
-EasyData* compass_data = NULL;
+EasyData* sensors_data = NULL;
 
 static int32_t current_station_angle = 0;
 
@@ -75,20 +75,20 @@ static void draw_needle () {
     layer_add_child(window_layer, s_direction_layer);
 }
 
-void update_compass_with (int32_t angle) {
+void update_sensors_with (int32_t angle) {
   current_station_angle = angle;
-  if (compass_data) {
-    heading_data_handler(compass_data);
+  if (sensors_data) {
+    heading_data_handler(sensors_data);
   }
 }
 
-void create_compass(Layer* win_layer, GRect b) {
+void create_sensors(Layer* win_layer, GRect b) {
   window_layer = win_layer;
   bounds = b;
 
   draw_needle();
 
-  compass_data = setup_compass (
+  sensors_data = setup_sensors_handling (
       heading_data_handler,
       draw_calibration,
       draw_calibration
@@ -97,10 +97,10 @@ void create_compass(Layer* win_layer, GRect b) {
 
 /* @desc : Code to destroy the compasas.
  */
-void destroy_compass() {
+void destroy_sensors() {
   window_layer = NULL;
 
-  compass_service_unsubscribe();
+  stop_sensors_handling();
 
   gpath_destroy(s_arrow);
   s_arrow = NULL;

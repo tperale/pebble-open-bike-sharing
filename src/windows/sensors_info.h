@@ -12,7 +12,7 @@
  *      to update the needle direction when you change the current
  *      station displayed.
  */
-void update_compass_with(int32_t);
+void update_sensors_with(int32_t);
 
-void create_compass(Layer*, GRect);
-void destroy_compass();
+void create_sensors(Layer*, GRect);
+void destroy_sensors();

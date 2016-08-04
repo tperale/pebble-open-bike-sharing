@@ -17,10 +17,10 @@ typedef struct EasyData {
   AccelData accel;
 } EasyData;
 
-EasyData* setup_compass(
+EasyData* setup_sensors_handling(
     void (*heading_changed_func)(EasyData*),
     void (*calibration_func)(EasyData*),
     void (*calibrating_func)(EasyData*)
 );
 
-void stop_compass_handling ();
+void stop_sensors_handling ();

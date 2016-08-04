@@ -41,11 +41,16 @@ static void accelerometer_data_handler (AccelData* accel_data, uint32_t num_samp
   }
 }
 
-EasyData* setup_compass (
+EasyData* setup_sensors_handling (
         void (*heading_changed_func)(EasyData*),
         void (*calibration_func)(EasyData*),
         void (*calibrating_func)(EasyData*))
 {
+  if (data) {
+    WARN("EasyData is already allocated.");
+    stop_sensors_handling ();
+  }
+
   EasyData* d = malloc(sizeof(EasyData));
   *d = (EasyData) {
     .heading_changed_handler = heading_changed_func,
@@ -73,6 +78,7 @@ EasyData* setup_compass (
   return d;
 }
 
-void stop_compass_handling () {
+void stop_sensors_handling () {
   compass_service_unsubscribe();
+  accel_data_service_unsubscribe();
 }
