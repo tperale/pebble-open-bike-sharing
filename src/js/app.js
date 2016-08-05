@@ -54,8 +54,7 @@ const find_closest_stations = () => {
         const pos = results[0];
         const json = JSON.parse(results[1]);
 
-        stations = new Stations(pos.coords.latitude,
-                                pos.coords.longitude);
+        stations = new Stations(pos.coords);
 
         async.map(json['network']['stations'], (item, callback) => {
             stations.add(item);
@@ -137,7 +136,7 @@ const get_location = () => {
     navigator.geolocation.getCurrentPosition(
         (pos) => {
             if (stations) {
-                stations.update(pos.coords.latitude, pos.coords.longitude);
+                stations.update(pos.coords);
             } else {
             
             }
