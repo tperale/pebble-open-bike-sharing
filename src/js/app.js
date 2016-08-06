@@ -16,25 +16,27 @@ const xhrRequest = (url, type, callback) => {
 
 let stations = null;
 
+const get_location = (callback) => {
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            callback(null, pos.coords);
+        }, (err) => {
+            console.log('Error requesting location : ' + err);
+            Pebble.showSimpleNotificationOnPebble('Error', err);
+            callback(err);
+        }, {
+          timeout: 15000,
+          maximumAge: 60000
+        }
+    );
+};
+
 /* @desc Find the closest stations from your location.
  */
 const find_closest_stations = () => {
     console.log('Finding closest station from the options : ' + JSON.stringify(options) + ' at ' + options.api_address);
     async.parallel([
-        (callback) => {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    callback(null, pos);
-                },
-                (err) => {
-                    console.log('Error requesting location : ' + err);
-                    callback(err, null);
-                }, {
-                    timeout: 15000, 
-                    maximumAge: 60000
-                }
-            );
-        }, (callback) => {
+        get_location, (callback) => {
             xhrRequest(options.api_address, 'GET', 
                 // TODO Error cheking
                 (responseText) => {
@@ -74,20 +76,7 @@ const find_closest_network = () => {
     const network_adress = 'http://api.citybik.es/v2/networks';
 
     async.parallel([
-        (callback) => {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    callback(null, pos);
-                },
-                (err) => {
-                    console.log('Error requesting location : ' + err);
-                    callback(err, null);
-                }, {
-                    timeout: 15000, 
-                    maximumAge: 60000
-                }
-            );
-        }, (callback) => {
+        get_location, (callback) => {
             console.log('Requesting ' + network_adress);
 
             xhrRequest(network_adress, 'GET', 
@@ -132,24 +121,6 @@ const find_closest_network = () => {
     });
 };
 
-const get_location = () => {
-    navigator.geolocation.getCurrentPosition(
-        (pos) => {
-            if (stations) {
-                stations.update(pos.coords);
-            } else {
-            
-            }
-            return; 
-        },
-        (err) => {
-            console.log('Error requesting location : ' + err);
-            Pebble.showSimpleNotificationOnPebble('Error', err);
-        },
-        {timeout: 15000, maximumAge: 60000}
-    );
-};
-
 Pebble.addEventListener('ready', 
     (e) => {
         console.log('PebbleKit JS ready!');
@@ -171,7 +142,11 @@ Pebble.addEventListener('appmessage',
         switch (e.payload.KEY_COMMUNICATION) {
             case app.GET_UPDATED_LOCATION:
                 console.log('Getting updated location.');
-                get_location();
+                get_location((coords) => {
+                  if (stations) {
+                    stations.update(coords);
+                  }
+                });
                 break;
             case app.GET_STATIONS_UPDATE:
                 console.log('Getting station update.');
