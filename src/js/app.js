@@ -7,17 +7,17 @@ const utils = require('./utils.js');
 let options = JSON.parse(localStorage.getItem('options'));
 
 const xhrRequest = (url, type, callback) => {
-  let xhr = new XMLHttpRequest();
-  xhr.onload = () => {
-      callback(xhr.responseText);
-  };
-  xhr.open(type, url);
-  xhr.send();
+    let xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+        callback(xhr.responseText);
+    };
+    xhr.open(type, url);
+    xhr.send();
 };
 
 let stations = null;
 
-const get_location = (callback) => {
+const getLocation = (callback) => {
     navigator.geolocation.getCurrentPosition(
         (pos) => {
             callback(null, pos.coords);
@@ -32,18 +32,19 @@ const get_location = (callback) => {
     );
 };
 
+const getApiNetwork = (callback) => {
+    xhrRequest(options.api_address, 'GET', (responseText) => {
+        callback(null, responseText);
+    });
+};
+
 /* @desc Find the closest stations from your location.
  */
 const find_closest_stations = () => {
     console.log('Finding closest station from the options : ' + JSON.stringify(options) + ' at ' + options.api_address);
     async.parallel([
-        get_location, (callback) => {
-            xhrRequest(options.api_address, 'GET', 
-                // TODO Error cheking
-                (responseText) => {
-                    callback(null, responseText);
-                });
-        },
+        getLocation, 
+        getApiNetwork,
     ], (err, results) => {
         if (err) {
             console.log(err);
@@ -74,7 +75,7 @@ const find_closest_network = () => {
     const network_adress = 'http://api.citybik.es/v2/networks';
 
     async.parallel([
-        get_location, (callback) => {
+        getLocation, (callback) => {
             console.log('Requesting ' + network_adress);
 
             xhrRequest(network_adress, 'GET', 
@@ -90,12 +91,13 @@ const find_closest_network = () => {
             Pebble.showSimpleNotificationOnPebble('Error', err);
             return;
         }
+
         let min = {
-            distance : 10000000,
+            distance : Infinity,
         };
 
-        let latitude = results[0].coords.latitude;
-        let longitude = results[0].coords.longitude;
+        const latitude = results[0].latitude;
+        const longitude = results[0].longitude;
         async.map(results[1].networks, (network, callback) => {
             network.distance = utils.calc_distance(latitude, longitude, 
                 network.location.latitude, network.location.longitude);
@@ -138,26 +140,33 @@ Pebble.addEventListener('appmessage',
         console.log('RECEIVED : ' + JSON.stringify(e));
 
         switch (e.payload.KEY_COMMUNICATION) {
-            case app.GET_UPDATED_LOCATION:
+            case app.GET_UPDATED_LOCATION: {
                 console.log('Getting updated location.');
-                get_location((coords) => {
+                getLocation((coords) => {
                   if (stations) {
-                    stations.update(coords);
+                    stations.updateWithLocation(coords);
                   }
                 });
                 break;
-            case app.GET_STATIONS_UPDATE:
+            }
+            case app.GET_STATIONS_UPDATE: {
                 console.log('Getting station update.');
-                find_closest_stations();
+                stations.clear();
+                getApiNetwork((err, result) => {
+                    if (stations) {
+                        stations.updateWithAPI(JSON.parse(result).stations);
+                    }
+                });
                 break;
+            }
         }
     }                     
 );
 
 Pebble.addEventListener('showConfiguration', () => {
-  const url = 'https://rawgit.com/thomacer/pebble-villo/master/config/index.html';
+    const url = 'https://rawgit.com/thomacer/pebble-villo/master/config/index.html';
 
-  Pebble.openURL(url);
+    Pebble.openURL(url);
 });
 
 Pebble.addEventListener('webviewclosed', (e) => {

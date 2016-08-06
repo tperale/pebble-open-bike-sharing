@@ -25,10 +25,11 @@ class Station {
         this.name = obj.name;
         this.empty_slots = obj.empty_slots;
         this.free_bikes = obj.free_bikes;
-        this.latitude = obj.latitude;
-        this.longitude = obj.longitude;
         this.distance = null;
         this.angle = null;
+
+        this.latitude = obj.latitude;
+        this.longitude = obj.longitude;
     }
 
     /* @desc : Transform the object into a formated JSON to send to the Pebble.
@@ -90,6 +91,16 @@ class Station {
         this.angle = (Math.atan(delta_long / delta_lat)) * 180 / Math.PI;
 
         return this.angle;
+    }
+
+    updateWithAPI (api) {
+        this.empty_slots = api.empty_slots;
+        this.free_bikes = api.free_bikes;
+    }
+
+    updateWithLocation (coords) {
+        this.distanceFrom(coords.latitude, coords.longitude);
+        this.calcAngle(coords.latitude, coords.longitude);
     }
 }
 
