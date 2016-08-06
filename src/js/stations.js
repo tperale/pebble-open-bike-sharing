@@ -5,7 +5,8 @@ const utils = require('./utils.js');
 
 class Stations  {
     constructor (coords) {
-        this.coords = coords;
+        this.latitude = coords.latitude;
+        this.longitude = coords.longitude;
         this.number = 5;
         this.stations = [];
     }
@@ -61,12 +62,13 @@ class Stations  {
     /* @brief : Add a new Station to the this.stations array.
      */
     add (station) {
+        const self = this;
         console.log('Adding station : ' + JSON.stringify(station));
-        var current = new Station(station);
-        current.calcAngle(this.coords.latitude, this.coords.longitude);
-        var distance = current.distanceFrom(this.coords.latitude, this.coords.longitude);
+        
+        station.calcAngle(self.latitude, self.longitude);
+        station.distanceFrom(self.latitude, self.longitude);
 
-        this._sort(current);
+        this._sort(station);
     }
 
     clear () {
@@ -83,8 +85,8 @@ class Stations  {
 
         const self = this;
         async.map(self.stations, function (item, callback) {
-            item.distanceFrom(latitude, longitude);
-            item.calcAngle(latitude, longitude);
+            item.distanceFrom(self.latitude, self.longitude);
+            item.calcAngle(self.latitude, self.longitude);
             self._sort(item); // Put the station in place to be still sorted.
             callback(null, item);
         }, function (err, results) {

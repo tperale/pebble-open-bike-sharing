@@ -1,6 +1,7 @@
 const async = require('async');
 const app = require('./appinfo.js');
 const Stations = require('./stations.js').Stations;
+const Station = require('./station.js').Station;
 const utils = require('./utils.js');
 
 let options = JSON.parse(localStorage.getItem('options'));
@@ -40,7 +41,6 @@ const find_closest_stations = () => {
             xhrRequest(options.api_address, 'GET', 
                 // TODO Error cheking
                 (responseText) => {
-                    
                     callback(null, responseText);
                 });
         },
@@ -51,21 +51,19 @@ const find_closest_stations = () => {
             return;
         }
 
-        console.log('received : ' + JSON.stringify(results[1]));
+        const location_result = results[0];
+        const tmp_stations = new Stations(location_result);
 
-        const pos = results[0];
-        const json = JSON.parse(results[1]);
-
-        stations = new Stations(pos.coords);
-
-        async.map(json['network']['stations'], (item, callback) => {
-            stations.add(item);
+        console.log('API result : ' + JSON.stringify(results[1]));
+        const api_result = JSON.parse(results[1]);
+        async.map(api_result['network']['stations'], (item, callback) => {
+            tmp_stations.add(new Station(item));
             callback();
         }, (err, results) => {
-            stations.send();
+          tmp_stations.send(() => {
+            stations = tmp_stations;
+          });
         });
-
-
     });
 };
 
