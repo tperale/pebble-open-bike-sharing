@@ -4,32 +4,7 @@
 #include "./globals.h"
 #include "./libs/pebble-assist.h"
 
-/* static void second_handler (struct tm *tick_time, TimeUnits units_changed); */
-
-static void send_request (int value) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Sending request : %i", value);
-  // Declare the dictionary's iterator
-  DictionaryIterator* out_iter;
-
-  // Prepare the outbox buffer for this message
-  AppMessageResult result = app_message_outbox_begin(&out_iter);
-
-  if (result == APP_MSG_OK) {
-    dict_write_int(out_iter, KEY_COMMUNICATION, &value, sizeof(int), false);
-
-    // Unsubscribe the current timer to not interfer with the current
-    // long "js" job.
-    /* tick_timer_service_unsubscribe(); */
-
-    result = app_message_outbox_send();
-    if (result != APP_MSG_OK) {
-      APP_LOG(APP_LOG_LEVEL_ERROR, "Error sending the outbox: %d", (int)result);
-    }
-  } else {
-    // The outbox cannot be used right now
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Error preparing the outbox: %d", (int)result);
-  }
-}
+static void second_handler (struct tm *tick_time, TimeUnits units_changed);
 
 static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
   APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
@@ -66,7 +41,7 @@ static void inbox_callback(DictionaryIterator *iterator, void *context) {
     }
     case RESPONSE_UPDATED_STATIONS:
     case RESPONSE_UPDATED_LOCATION: {
-      DEBUG("Updating the location. ");
+      DEBUG("Updating the location.");
 
       stations->update(stations, Station_new (
         dict_find(iterator, KEY_NAME)->value->cstring,
@@ -80,25 +55,36 @@ static void inbox_callback(DictionaryIterator *iterator, void *context) {
 
       break;
     }
+    case RESPONSE_ADD_STATIONS: {
+      DEBUG("Adding stations.");
+
+      stations->add(stations, Station_new (
+        dict_find(iterator, KEY_NAME)->value->cstring,
+        dict_find(iterator, KEY_PARKINGS)->value->uint32,
+        dict_find(iterator, KEY_FREE_BIKE)->value->uint32,
+        dict_find(iterator, KEY_DISTANCE)->value->uint32,
+        dict_find(iterator, KEY_ANGLE)->value->uint32
+      ));
+      break;
+    }
     case RESPONSE_END: {
       win_main_update ();
 
       /* Reenable the tick timer to fetch new location. */
-      /* tick_timer_service_subscribe(SECOND_UNIT, second_handler); */
-
+      tick_timer_service_subscribe(SECOND_UNIT, second_handler);
       break;
     }
   }
 }
 
-/* static void second_handler (struct tm *tick_time, TimeUnits units_changed) { */
-/*     /1* if ((tick_time->tm_sec % 60) == 0) { *1/ */
-/*     /1*     send_request(GET_STATIONS); *1/ */
-/*     /1* } *1/ */
-/*     if ((tick_time->tm_sec % 5) == 0) { */
-/*         send_request(GET_UPDATED_LOCATION); */
-/*     } */
-/* } */
+static void second_handler (struct tm *tick_time, TimeUnits units_changed) {
+    if ((tick_time->tm_sec % 60) == 0) {
+        send_request(GET_STATIONS_UPDATE);
+    }
+    if ((tick_time->tm_sec % 5) == 0) {
+        send_request(GET_UPDATED_LOCATION);
+    }
+}
 
 int main(void) {
   win_main_init();
