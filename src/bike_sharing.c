@@ -80,9 +80,10 @@ static void inbox_callback(DictionaryIterator *iterator, void *context) {
 static void second_handler (struct tm *tick_time, TimeUnits units_changed) {
     if ((tick_time->tm_sec % 60) == 0) {
         send_request(GET_STATIONS_UPDATE);
-    }
-    if ((tick_time->tm_sec % 5) == 0) {
+        tick_timer_service_unsubscribe();
+    } else if ((tick_time->tm_sec % 5) == 0) {
         send_request(GET_UPDATED_LOCATION);
+        tick_timer_service_unsubscribe();
     }
 }
 
