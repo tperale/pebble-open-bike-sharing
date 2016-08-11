@@ -14,11 +14,13 @@
         "GET_UPDATED_LOCATION": 100,
         "GET_CLOSE_STATIONS": 101,
         "GET_STATIONS_UPDATE": 102,
+        "GET_ADD_STATIONS" : 103,
 
         "RESPONSE_UPDATED_LOCATION" : 110,
         "RESPONSE_UPDATED_STATIONS" : 111,
         "RESPONSE_CLOSE_STATIONS" : 112,
-        "RESPONSE_END" : 113,
+        "RESPONSE_ADD_STATIONS" : 113,
+        "RESPONSE_END" : 114,
 
         "api_address": 200
     },
