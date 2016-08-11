@@ -2,15 +2,14 @@
 
 static EasyData* data;
 
-static bool compass_needs_calibration (CompassHeadingData heading) {
+static inline bool compass_needs_calibration (CompassHeadingData heading) {
   return heading.compass_status == CompassStatusDataInvalid;
 }
 
-static bool compass_is_calibrating (CompassHeadingData heading) {
+static inline bool compass_is_calibrating (CompassHeadingData heading) {
   return heading.compass_status == CompassStatusCalibrating;
 }
 
-/* static void compass_heading_handler (EasyData* data) { */
 static void compass_heading_handler (CompassHeadingData heading) {
   data->heading = heading;
 
@@ -28,7 +27,6 @@ static void compass_heading_handler (CompassHeadingData heading) {
   }
 }
 
-/* static void accelerometer_data_handler (EasyData* data) { */
 static void accelerometer_data_handler (AccelData* accel_data, uint32_t num_samples) {
   data->accel = *accel_data;
 
@@ -61,18 +59,9 @@ EasyData* setup_sensors_handling (
 
   data = d;
 
-  /* compass_service_subscribe(lambda (void, (CompassHeadingData heading) { */
-  /*   data->heading = heading; */
-  /*   compass_heading_handler(data); */
-  /* })); */
-
   compass_service_subscribe(compass_heading_handler);
 
   accel_service_set_sampling_rate(ACCEL_SAMPLING_25HZ);
-  /* accel_data_service_subscribe(1, lambda(void, (AccelData* accel_data, uint32_t num_samples) { */
-  /*   data->accel = *accel_data; */
-  /*   accelerometer_data_handler(data); */
-  /* })); */
   accel_data_service_subscribe(1, accelerometer_data_handler);
 
   return d;
@@ -81,4 +70,5 @@ EasyData* setup_sensors_handling (
 void stop_sensors_handling () {
   compass_service_unsubscribe();
   accel_data_service_unsubscribe();
+  free(data);
 }
