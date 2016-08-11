@@ -34,7 +34,7 @@ const getLocation = (callback) => {
 
 const getApiNetwork = (callback) => {
     xhrRequest(options.api_address, 'GET', (responseText) => {
-        callback(null, responseText);
+        callback(null, JSON.parse(responseText)['network']['stations']);
     });
 };
 
@@ -56,8 +56,8 @@ const find_closest_stations = () => {
         const tmp_stations = new Stations(location_result);
 
         console.log('API result : ' + JSON.stringify(results[1]));
-        const api_result = JSON.parse(results[1]);
-        async.map(api_result['network']['stations'], (item, callback) => {
+        const api_result = results[1];
+        async.map(api_result, (item, callback) => {
             tmp_stations.add(new Station(item));
             callback();
         }, (err, results) => {
@@ -135,14 +135,10 @@ Pebble.addEventListener('ready',
 
 Pebble.addEventListener('appmessage',
     (e) => {
-        console.log('AppMessage received!');
-
-        console.log('RECEIVED : ' + JSON.stringify(e));
-
         switch (e.payload.KEY_COMMUNICATION) {
             case app.GET_UPDATED_LOCATION: {
-                console.log('Getting updated location.');
-                getLocation((coords) => {
+                console.log('RECEIVED : Getting updated location.');
+                getLocation((err, coords) => {
                   if (stations) {
                     stations.updateWithLocation(coords);
                   }
@@ -150,13 +146,19 @@ Pebble.addEventListener('appmessage',
                 break;
             }
             case app.GET_STATIONS_UPDATE: {
-                console.log('Getting station update.');
-                stations.clear();
+                console.log('RECEIVED : Getting station update.');
                 getApiNetwork((err, result) => {
                     if (stations) {
-                        stations.updateWithAPI(JSON.parse(result).stations);
+                        stations.updateWithAPI(result);
                     }
                 });
+                break;
+            }
+            case app.GET_ADD_STATIONS: {
+                console.log('RECEIVED : Adding more station to the response.');
+                if (stations) {
+                    stations.addMore(); 
+                }
                 break;
             }
         }

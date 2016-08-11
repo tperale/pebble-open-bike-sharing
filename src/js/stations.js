@@ -23,14 +23,18 @@ class Stations  {
         this.currentStation = [];
     }
 
-    _send (type, callback) {
+    _remove (station) {
+        const i = this.stations.indexOf(station);
+
+        if (i != -1) {
+            this.stations.splice(i, 1);
+        }
+    }
+
+    _sendToPebble (type, list, callback) {
         const self = this;
-
         const number = Math.min(self.stations.length, self.number);
-
-        this.currentStation = this.stations.slice(0, self.number);
-
-        utils.sendListToPebble(self.currentStation, (obj, index) => {
+        utils.sendListToPebble(list, (obj, index) => {
             let result = obj.getPlain();
             result.KEY_TYPE = type ? type : app.RESPONSE_CLOSE_STATIONS;
             result.KEY_INDEX = index;
@@ -43,6 +47,12 @@ class Stations  {
                 KEY_TYPE : app.RESPONSE_END, 
             }, callback); 
         });
+    }
+
+    _send (type, callback) {
+        this.currentStation = this.stations.slice(0, this.number);
+
+        this._sendToPebble(type, this.currentStation, callback);
     }
 
     /* @brief : Sort a station in the this.stations array in such way it's still
@@ -94,6 +104,18 @@ class Stations  {
         this._send(app.RESPONSE_CLOSE_STATIONS, callback);
     }
 
+    addMore (callback) {
+        const old = this.number;
+        this.number *= 2; 
+
+        this._sendToPebble(app.RESPONSE_ADD_STATIONS,
+            this.stations.slice(Math.min(old, this.stations.length), 
+                Math.min(this.number, this.stations.length)
+            ),
+            callback
+        );
+    }
+
     /* @desc Update the stations stored in this class with the data from
      *      the API.
      * @param The array of "stations" from the API.
@@ -105,7 +127,7 @@ class Stations  {
             self.stationsDict[station.name].updateWithAPI(station);
             callback();
         }, () => {
-            this._send(app.RESPONSE_UPDATED_STATIONS, callback); 
+            self._send(app.RESPONSE_UPDATED_STATIONS, callback); 
         });
     }
 
@@ -114,14 +136,16 @@ class Stations  {
      * @param New location object.
      */
     updateWithLocation (coords, callback) {
+        const self = this;
+
         this.latitude = coords.latitude;
         this.longitude = coords.longitude;
 
-        const self = this;
         async.map(self.stations, (station, callback) => {
             station.updateWithLocation(coords);
-            self._sort(station); // Put the station in place to be still sorted.
-            callback(null, station);
+            // self._remove(station);
+            // self._sort(station); // Put the station in place to be still sorted.
+            callback();
         }, (err, results) => {
             if (err) {
                 console.log('Error updating localisation : ' + err); 
