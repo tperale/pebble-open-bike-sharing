@@ -4,16 +4,16 @@ const Stations = require('./stations.js').Stations;
 const Station = require('./station.js').Station;
 const utils = require('./utils.js');
 
-let options = JSON.parse(localStorage.getItem('options'));
-
-const xhrRequest = (url, type, callback) => {
-    let xhr = new XMLHttpRequest();
+const request = (address, callback) => {
+    const xhr = new XMLHttpRequest();
     xhr.onload = () => {
-        callback(xhr.responseText);
+        callback(null, null, xhr.responseText);
     };
-    xhr.open(type, url);
+    xhr.open('GET', address);
     xhr.send();
 };
+
+let options = JSON.parse(localStorage.getItem('options'));
 
 let stations = null;
 
@@ -23,7 +23,7 @@ const getLocation = (callback) => {
             callback(null, pos.coords);
         }, (err) => {
             console.log('Error requesting location : ' + err);
-            Pebble.showSimpleNotificationOnPebble('Error', err);
+            Pebble.showSimpleNotificationOnPebble('Error : Geolocation.', err);
             callback(err);
         }, {
           timeout: 15000,
@@ -32,15 +32,34 @@ const getLocation = (callback) => {
     );
 };
 
+const getNetworks = (callback) => {
+    const networks_adress = 'http://api.citybik.es/v2/networks';
+    request(networks_adress, (err, response, body) => {
+        if (err) {
+            Pebble.showSimpleNotificationOnPebble('Error : Getting networks.', err);
+            callback(err);
+            return;
+        }
+    
+        callback(null, JSON.parse(body));
+    });
+};
+
 const getApiNetwork = (callback) => {
-    xhrRequest(options.api_address, 'GET', (responseText) => {
-        callback(null, JSON.parse(responseText)['network']['stations']);
+    request(options.api_address, (err, response, body) => {
+        if (err) {
+            Pebble.showSimpleNotificationOnPebble('Error : Getting API network.', err);
+            callback(err);
+            return;
+        }
+    
+        callback(null, JSON.parse(body)['network']['stations']);
     });
 };
 
 /* @desc Find the closest stations from your location.
  */
-const find_closest_stations = () => {
+const findClosestStations = () => {
     console.log('Finding closest station from the options : ' + JSON.stringify(options) + ' at ' + options.api_address);
     async.parallel([
         getLocation, 
@@ -48,7 +67,6 @@ const find_closest_stations = () => {
     ], (err, results) => {
         if (err) {
             console.log(err);
-            Pebble.showSimpleNotificationOnPebble('Error', err);
             return;
         }
 
@@ -70,21 +88,13 @@ const find_closest_stations = () => {
 
 /* @desc Get the closest network from your location.
  */
-const find_closest_network = () => {
+const findClosestNetwork = () => {
     console.log('Looking for closest network');
     const network_adress = 'http://api.citybik.es/v2/networks';
 
     async.parallel([
-        getLocation, (callback) => {
-            console.log('Requesting ' + network_adress);
-
-            xhrRequest(network_adress, 'GET', 
-                // TODO Error cheking
-                (responseText) => {
-                    const json = JSON.parse(responseText);
-                    callback(null, json);
-                });
-        },
+        getLocation,
+        getNetworks,
     ], (err, results) => {
         if (err) {
             console.log(err);
@@ -116,7 +126,7 @@ const find_closest_network = () => {
             localStorage.setItem('options', JSON.stringify(new_options));
             options = new_options;
 
-            find_closest_stations();
+            findClosestStations();
         });
     });
 };
@@ -126,9 +136,9 @@ Pebble.addEventListener('ready',
         console.log('PebbleKit JS ready!');
 
         if (!options || !options.api_address) {
-            find_closest_network();        
+            findClosestNetwork();        
         } else {
-            find_closest_stations();
+            findClosestStations();
         }
     }
 );
@@ -178,6 +188,6 @@ Pebble.addEventListener('webviewclosed', (e) => {
         console.log('Received : ' + JSON.stringify(options));
         localStorage.setItem('options', JSON.stringify(options)); 
 
-        find_closest_stations();
+        findClosestStations();
     }
 });
