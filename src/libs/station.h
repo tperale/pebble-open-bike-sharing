@@ -1,6 +1,8 @@
 #pragma once
 
 #include <pebble.h>
+#include "./log.h"
+#include "../appinfo.h"
 
 typedef struct Station {
     void (*free)(struct Station*);

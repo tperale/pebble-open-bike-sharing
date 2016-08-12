@@ -2,7 +2,7 @@
 
 #include <pebble.h>
 #include "./functionnal.h"
-#include "./pebble-assist.h"
+#include "./log.h"
 
 typedef void(*CompassDrawFunction)(CompassHeadingData heading);
 typedef void(*ShowCalibrationWin)();

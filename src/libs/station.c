@@ -1,7 +1,4 @@
 #include "station.h"
-#include "./pebble-assist.h"
-#include "../appinfo.h"
-#include <string.h>
 
 static void Station_free (Station* self) {
   WARN("Freeing the 'stations' : %s.", self->name);
