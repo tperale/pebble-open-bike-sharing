@@ -28,13 +28,14 @@ Station* Station_new (char* name,
   *s = (Station) {
     .free = Station_free,
     .copy = Station_copy,
-    .name = malloc(sizeof(char) * name_length),
+    .name = malloc(sizeof(char) * (name_length + 1)),
     .empty_slots = empty_slots,
     .free_bike = free_bike,
     .distance = distance,
     .angle = DEG_TO_TRIGANGLE(angle),
   };
   memcpy(s->name, name, name_length);
+  s->name[name_length] = '\0';
 
   return s;
 }
