@@ -1,24 +1,4 @@
-let utils = require('./utils.js');
-
-let getConfigData = () => {
-    let select = document.getElementById('stationList');
-    let apiAddress = select.options[select.selectedIndex].value;
-
-    console.log('Sending API address : ' + apiAddress + ' from ' + JSON.stringify(select.options));
-
-    let options = {
-        'api_address': apiAddress,
-    };
-
-    // Save for next launch
-    localStorage['api_address'] = options['api_address'];
-
-    //console.log('Got options: ' + JSON.stringify(options));
-    return options;
-};
-
-
-let getQueryParam = (variable, defaultValue) => {
+const getQueryParam = (variable, defaultValue) => {
     let query = location.search.substring(1);
     let vars = query.split('&');
     for (let i = 0; i < vars.length; i++) {
@@ -30,12 +10,10 @@ let getQueryParam = (variable, defaultValue) => {
     return defaultValue || false;
 };
 
-module.exports = {
-    getConfigData : getConfigData,
-    getQueryParam : getQueryParam,
-    send : () => {
-        let return_to = getQueryParam('return_to', 'pebblejs://close#');
-        getConfigData();
-        // document.location = return_to + encodeURIComponent(JSON.stringify(getConfigData()));
-    },
+module.exports.sendObjectToPebble = (object) => {
+    for (let key in object) {
+        localStorage[key] = object[key];
+    }
+    const return_to = getQueryParam('return_to', 'pebblejs://close#');
+    document.location = return_to + encodeURIComponent(JSON.stringify(object));
 };
