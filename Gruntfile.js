@@ -46,7 +46,7 @@ module.exports = function(grunt) {
                 files: {                                                         
                     './src/js/pebble-js-app.js' : ['src/js/**/*.js', '!src/js/**/*.tpl.js', '!src/js/pebble-js-app.js'],
                     './config/js/selectNetworksList.js' : ['./config/js/dev/selectNetworksList.js'],
-                    './config/js/select.js' : ['./config/js/dev/select.js'],
+                    './config/js/apiSubmitButton.js' : ['./config/js/dev/apiSubmitButton.js'],
                 },
             },
         },
