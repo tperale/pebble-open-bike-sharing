@@ -4,6 +4,8 @@
   <title>Bike Sharing configuration for Pebble</title>
   <link rel='stylesheet' type='text/css' href='css/slate.min.css'>
   <script src='js/slate.min.js'></script>
+  <script src='js/select.js'></script>
+  <script src='js/pebble.js'></script>
   <style>
   .title {
     padding: 15px 10px;
@@ -23,7 +25,7 @@
     <div class='item-container'>
       <div class='item-container-content'>
         <div class='item'>
-          Enter the api address for your bike sharing service.
+          Select your bike sharing network.
         </div>
       </div>
     </div>
@@ -35,30 +37,22 @@
             Location :
           <!-- <div class="item-input-wrapper"> -->
             <!-- <input type="text" class="item-input" name="api_address" id='api_address' placeholder="API address"> -->
-            <select id='stationList' class"'item-select">
+            <select id='networksList' class"'item-select">
             </select>
+            <script src='./js/selectNetworksList.js'></script>
           <!-- </div> -->
         </label>
       </div>
       <div class='item-container-footer'>
-        Go to "http://api.citybik.es/v2/networks/" to find your API address.
+        Networks are sorted according to your current distance.
       </div>
     </div>
 
     <div class='item-container'>
       <div class='button-container'>
-        <input id='submit_button' type='button' class='item-button' value='SUBMIT'>
+        <input id='apiSubmitButton' type='button' class='item-button' value='SUBMIT'>
       </div>
     </div>
+    <script src='./js/apiSubmitButton.js'></script>
   </body>
-  <script src='js/obs.js'></script>
-  <script>
-  // (function() {
-  //   var apiAddress = document.getElementById('api_address');
-  //   // Load any previously saved configuration, if available
-  //   if(localStorage['api_address']) {
-  //     apiAddress.value = localStorage['api_address'];
-  //   }
-  // })();
-  </script>
 </html>
