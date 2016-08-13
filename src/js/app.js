@@ -33,7 +33,7 @@ const getLocation = (callback) => {
 };
 
 const getNetworks = (callback) => {
-    const networks_adress = 'http://api.citybik.es/v2/networks';
+    const networks_adress = 'https://api.citybik.es/v2/networks';
     request(networks_adress, (err, response, body) => {
         if (err) {
             Pebble.showSimpleNotificationOnPebble('Error : Getting networks.', err);
@@ -183,8 +183,7 @@ Pebble.addEventListener('appmessage',
 );
 
 Pebble.addEventListener('showConfiguration', () => {
-    const url = 'https://rawgit.com/thomacer/pebble-villo/master/config/index.html';
-
+    const url = 'https://cdn.rawgit.com/thomacer/pebble-open-bike-sharing/3bc006ce47809e8e819d78b35884ad90cbf84f9c/config/index.html';
     Pebble.openURL(url);
 });
 
