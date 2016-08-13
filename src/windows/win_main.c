@@ -33,6 +33,16 @@ static void click_config () {
     win_main_update();
   }));
 
+  window_long_click_subscribe(BUTTON_ID_UP, 500, lambda(void, () {
+    MEM_STATE("LONG UP");
+    if (!current_station) return;
+    if (stations->current / 2 > NUMBER_OF_STATIONS_MIN) {
+      stations->current /= 2;
+    } else {
+      stations->current = NUMBER_OF_STATIONS_MIN;
+    }
+  }), NULL);
+
   window_long_click_subscribe(BUTTON_ID_DOWN, 500, lambda(void, () {
     MEM_STATE("LONG DOWN");
     if (!current_station) return;
