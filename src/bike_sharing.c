@@ -74,6 +74,9 @@ static void inbox_callback(DictionaryIterator *iterator, void *context) {
       tick_timer_service_subscribe(SECOND_UNIT, second_handler);
       break;
     }
+    default: {
+      break;
+    }
   }
 }
 
