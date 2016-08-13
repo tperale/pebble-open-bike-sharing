@@ -17,7 +17,7 @@ class Stations  {
     constructor (coords) {
         this.latitude = coords.latitude;
         this.longitude = coords.longitude;
-        this.number = 5;
+        this.number = app.NUMBER_OF_STATIONS_MIN;
         this.stations = [];
         this.stationsDict = {};
         this.currentStation = [];
