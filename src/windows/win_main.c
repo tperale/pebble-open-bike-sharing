@@ -14,18 +14,30 @@ static TextLayer* s_text_layer_next_destination;
 
 static void click_config () {
   window_single_click_subscribe(BUTTON_ID_UP, lambda(void, () {
+    MEM_STATE("UP");
+    if (!current_station) return;
     Station* tmp = Stations_previous(stations, current_station);
+    MEM_STATE("UP");
     current_station->free(current_station);
     current_station = tmp->copy(tmp);
+    MEM_STATE("UP");
     win_main_update();
   }));
 
   window_single_click_subscribe(BUTTON_ID_DOWN, lambda(void, () {
+    MEM_STATE("DOWN");
+    if (!current_station) return;
     Station* tmp = Stations_next(stations, current_station);
     current_station->free(current_station);
     current_station = tmp->copy(tmp);
     win_main_update();
   }));
+
+  window_long_click_subscribe(BUTTON_ID_DOWN, 500, lambda(void, () {
+    MEM_STATE("LONG DOWN");
+    if (!current_station) return;
+    send_request(GET_ADD_STATIONS);
+  }), NULL);
 }
 
 static void window_load(Window *window) {

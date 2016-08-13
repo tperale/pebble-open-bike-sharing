@@ -9,6 +9,7 @@
 #include "../libs/functionnal.h"
 #include "../libs/station.h"
 #include "../libs/stations.h"
+#include "../libs/log.h"
 
 void win_main_init(void);
 void win_main_update(void);
