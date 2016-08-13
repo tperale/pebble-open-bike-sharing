@@ -9,6 +9,18 @@ static void Stations_free (Stations* self) {
   free(self);
 }
 
+static void Stations_resize (Stations* self, uint32_t length) {
+  if (length < self->current) {
+    for (uint32_t i = length; i < self->current; ++i) {
+      self->stations[i]->free(self->stations[i]);
+    }
+    self->current = length;
+  } else if (length > self->current) {
+    self->stations = realloc(self->stations, sizeof(Station*) * length);
+    self->length = length;
+  }
+}
+
 //! Decal the element of the list on the right.
 static inline void Station_decal (Stations* self, uint32_t fromIndex) {
     uint32_t startFrom = self->current == self->length ? self->current - 1 : self->current;
@@ -19,9 +31,7 @@ static inline void Station_decal (Stations* self, uint32_t fromIndex) {
 
 static void Stations_add (Stations* self, Station* new) {
   if (self->current == self->length) {
-    self->length *= 2;
-    printf("Reallocating memory : %ld", self->length);
-    self->stations = realloc(self->stations, sizeof(Station*) * self->length);
+    self->resize(self, self->length * 2);
   }
 
   for (uint32_t i = 0; i < self->current; ++i) {
@@ -68,6 +78,7 @@ Stations* Stations_new (uint32_t length) {
 
   *s = (Stations) {
     .free = Stations_free,
+    .resize = Stations_resize,
     .add = Stations_add,
     .update = Stations_update,
     .insert = Stations_insert,

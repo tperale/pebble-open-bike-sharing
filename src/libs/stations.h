@@ -9,6 +9,8 @@ typedef struct Stations {
     //! Function to free the whole allocated content, including those
     //! in the "stations" array parameter.
     void (*free)(struct Stations*);
+    //! Resize the array according to the length pass in argument.
+    void (*resize)(struct Stations*, uint32_t);
     //! Add a "Station" to the array. If the array is out of space
     //! it will reallocate the space in a bigger array.
     //! The "Station" added must not already be in the array.

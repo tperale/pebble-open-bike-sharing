@@ -37,10 +37,11 @@ static void click_config () {
     MEM_STATE("LONG UP");
     if (!current_station) return;
     if (stations->current / 2 > NUMBER_OF_STATIONS_MIN) {
-      stations->current /= 2;
+      stations->resize(stations, stations->current / 2);
     } else {
-      stations->current = NUMBER_OF_STATIONS_MIN;
+      stations->resize(stations, NUMBER_OF_STATIONS_MIN);
     }
+    send_request(GET_LESS_STATIONS);
   }), NULL);
 
   window_long_click_subscribe(BUTTON_ID_DOWN, 500, lambda(void, () {

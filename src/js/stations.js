@@ -104,13 +104,23 @@ class Stations  {
         this._send(app.RESPONSE_CLOSE_STATIONS, callback);
     }
 
+    addLess (callback) {
+        // Using the same "algorithm" as in the C code.
+        if ((this.number / 2) > app.NUMBER_OF_STATIONS_MIN) {
+            this.number = Math.floor(this.number / 2);
+        } else {
+            this.number = app.NUMBER_OF_STATIONS_MIN;
+        }
+    }
+
     addMore (callback) {
         const old = this.number;
-        this.number *= 2; 
+        this.number = Math.min(this.number * 2, this.stations.length);
 
         this._sendToPebble(app.RESPONSE_ADD_STATIONS,
-            this.stations.slice(Math.min(old, this.stations.length), 
-                Math.min(this.number, this.stations.length)
+            this.stations.slice(
+                Math.min(old, this.stations.length), 
+                this.number
             ),
             callback
         );

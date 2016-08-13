@@ -164,6 +164,13 @@ Pebble.addEventListener('appmessage',
                 });
                 break;
             }
+            case app.GET_LESS_STATIONS: {
+                console.log('RECEIVED : Adding less station to the response.');
+                if (stations) {
+                    stations.addLess(); 
+                }
+                break;
+            }
             case app.GET_ADD_STATIONS: {
                 console.log('RECEIVED : Adding more station to the response.');
                 if (stations) {
