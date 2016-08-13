@@ -1,12 +1,14 @@
 {
     "appKeys": {
-        "KEY_NAME": 0,
-        "KEY_DISTANCE": 1,
-        "KEY_ANGLE": 2,
-        "KEY_FREE_BIKE": 3,
-        "KEY_PARKINGS": 4,
-        "KEY_NUMBER_OF_STATIONS": 5,
-        "KEY_INDEX" : 6,
+        "NUMBER_OF_STATIONS_MIN" : 5,
+
+        "KEY_NAME": 10,
+        "KEY_DISTANCE": 11,
+        "KEY_ANGLE": 12,
+        "KEY_FREE_BIKE": 13,
+        "KEY_PARKINGS": 14,
+        "KEY_NUMBER_OF_STATIONS": 15,
+        "KEY_INDEX" : 16,
 
         "KEY_TYPE" : 98,
         "KEY_COMMUNICATION": 99,
