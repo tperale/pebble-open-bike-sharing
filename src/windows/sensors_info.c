@@ -101,6 +101,7 @@ void destroy_sensors() {
   window_layer = NULL;
 
   stop_sensors_handling();
+  sensors_data = NULL;
 
   gpath_destroy(s_arrow);
   s_arrow = NULL;
