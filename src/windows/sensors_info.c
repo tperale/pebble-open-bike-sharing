@@ -62,17 +62,17 @@ static void draw_calibration (EasyData* data) {
  * @param {bounds} : Bounds of the window to draw the needle on.
  */
 static void draw_needle () {
-    /* Needle to show the direction. */
-    center = GPoint(bounds.size.w / 2, bounds.size.h / 2);
-    s_arrow = gpath_create(&INDICATION_ARROW);
-    gpath_move_to(s_arrow, center);
+  /* Needle to show the direction. */
+  center = GPoint(bounds.size.w / 2, bounds.size.h / 2);
+  s_arrow = gpath_create(&INDICATION_ARROW);
+  gpath_move_to(s_arrow, center);
 
-    /* Layer for the needle update. */
-    s_direction_layer = layer_create(bounds);
-    layer_set_update_proc(s_direction_layer, lambda(void, (Layer* layer, GContext* ctx) {
-      gpath_draw_filled(ctx, s_arrow);
-    }));
-    layer_add_child(window_layer, s_direction_layer);
+  /* Layer for the needle update. */
+  s_direction_layer = layer_create(bounds);
+  layer_set_update_proc(s_direction_layer, lambda(void, (Layer* layer, GContext* ctx) {
+    gpath_draw_filled(ctx, s_arrow);
+  }));
+  layer_add_child(window_layer, s_direction_layer);
 }
 
 void update_sensors_with (int32_t angle) {
@@ -109,5 +109,3 @@ void destroy_sensors() {
   layer_destroy(s_direction_layer);
   s_direction_layer = NULL;
 }
-
-
