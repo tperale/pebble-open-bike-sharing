@@ -25,6 +25,7 @@ static GRect bounds;
 
 static void heading_data_handler (EasyData* data) {
   if (calibration_window) {
+    window_stack_remove(calibration_window, true);
     compass_calibration_window_destroy(calibration_window);
     calibration_window = NULL;
   }
@@ -44,16 +45,12 @@ static void heading_data_handler (EasyData* data) {
 
 static void draw_calibration (EasyData* data) {
   if (calibration_window) {
-    if (window_stack_contains_window(compass_calibration_window_get_window(calibration_window))) {
-      compass_calibration_window_apply_accel_data(calibration_window, data->accel);
-      return;
-    }
+    compass_calibration_window_apply_accel_data(calibration_window, data->accel);
   } else {
     calibration_window = compass_calibration_window_create();
+    compass_calibration_window_apply_accel_data(calibration_window, data->accel);
+    window_stack_push(compass_calibration_window_get_window(calibration_window), true);
   }
-
-  compass_calibration_window_apply_accel_data(calibration_window, data->accel);
-  window_stack_push(compass_calibration_window_get_window(calibration_window), true);
 }
 
 /* @desc : Draw the needle from the base.
